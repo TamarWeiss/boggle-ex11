@@ -112,9 +112,9 @@ def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
     max_paths = []
     for i in range(min_word_len, n):
         paths = find_length_n_paths(i, board, words)
-        if not paths:
-            return list({get_word(board, path): path for path in max_paths}.values())
+        if not paths: break
         max_paths = paths
+    return list({get_word(board, path): path for path in max_paths}.values())
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
@@ -130,5 +130,5 @@ if __name__ == '__main__':
     print(len(paths), paths)
     paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
     print(len(paths2), paths2)
-    max_paths = max_score_paths2(board, words)
+    max_paths = [(get_word(board, path), path) for path in max_score_paths2(board, words)]
     print(len(max_paths), max_paths)
