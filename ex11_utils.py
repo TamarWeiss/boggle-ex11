@@ -42,6 +42,7 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
         if point not in curr_path
     )
 
+# TODO: find a way to make this a generator in order to save memory
 def word_combinations(board: Board, n=1):
     paths = [[point] for point in board_coords(board)]
 
@@ -59,6 +60,8 @@ def word_combinations(board: Board, n=1):
                 if len(next_word) > n or point in curr_path:
                     continue
                 new_paths.append(next_path)
+            if paths == new_paths:
+                break
         paths = new_paths
     return paths
 
@@ -89,10 +92,31 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
         if get_word(board, path) in words
     ]
 
+# rough draft. HIGHLY unoptimised and slow. has yet to filter out paths with the same word.
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-    pass
+    cell_num = sum(len(row) for row in board)
+    max_word_len = max(len(word) for word in words)
+    n = min(cell_num, max_word_len)
+    for i in range(n, 0, -1):
+        print(i)  # here just to keep track of how long it takes
+        paths = find_length_n_paths(i, board, words)
+        if paths:
+            return list({get_word(board, path): path for path in paths}.values())
 
-# TEMPORARY
+# much faster in execution. relies on a wonky assumption that there are words of len i for all the range
+def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
+    cell_num = sum(len(row) for row in board)
+    max_word_len = max(len(word) for word in words)
+    min_word_len = min(len(word) for word in words)
+    n = min(cell_num, max_word_len)
+    max_paths = []
+    for i in range(min_word_len, n):
+        paths = find_length_n_paths(i, board, words)
+        if not paths:
+            return list({get_word(board, path): path for path in max_paths}.values())
+        max_paths = paths
+
+# TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
     words = load_words('boggle_dict.txt')
     board = [
@@ -106,3 +130,5 @@ if __name__ == '__main__':
     print(len(paths), paths)
     paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
     print(len(paths2), paths2)
+    max_paths = max_score_paths2(board, words)
+    print(len(max_paths), max_paths)
