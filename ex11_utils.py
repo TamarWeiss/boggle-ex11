@@ -44,9 +44,8 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
 
 # TODO: find a way to make this a generator in order to save memory
 def word_combinations(board: Board, n=1):
-    paths = [[point] for point in board_coords(board)]
-
-    for iteration in range(n):
+    paths = [[]]
+    for i in range(n):
         new_paths = []
         for curr_path in paths:
             curr_word = get_word(board, curr_path)
@@ -54,12 +53,13 @@ def word_combinations(board: Board, n=1):
                 new_paths.append(curr_path)
                 continue
 
-            for point in get_neighbors(curr_path[-1]):
+            for point in get_neighbors(curr_path[-1]) if i else board_coords(board):
                 next_path = curr_path + [point]
                 next_word = get_word(board, next_path)
                 if len(next_word) > n or point in curr_path:
                     continue
                 new_paths.append(next_path)
+
             if paths == new_paths:
                 break
         paths = new_paths
@@ -116,9 +116,11 @@ def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
         max_paths = paths
     return list({get_word(board, path): path for path in max_paths}.values())
 
+FILENAME = 'boggle_dict.txt'
+
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
-    words = load_words('boggle_dict.txt')
+    words = load_words(FILENAME)
     board = [
         ['T', 'H', 'Y', 'H'],
         ['H', 'I', 'L', 'T'],
@@ -126,7 +128,7 @@ if __name__ == '__main__':
         ['B', 'A', 'N', 'QU']
     ]
     pprint(board)
-    paths = [(get_word(board, path), path) for path in find_length_n_paths(7, board, words)]
+    paths = [(get_word(board, path), path) for path in find_length_n_paths(6, board, words)]
     print(len(paths), paths)
     paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
     print(len(paths2), paths2)
