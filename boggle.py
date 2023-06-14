@@ -4,7 +4,7 @@ from typing import Union
 from boggle_board_randomizer import randomize_board
 from ex11_utils import Path, get_word
 
-class Game:
+class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__time = IntVar(value=60)
@@ -121,4 +121,4 @@ class Game:
 
 if __name__ == "__main__":
     size = 500
-    Game(size, size).start()
+    Boggle(size, size).start()
