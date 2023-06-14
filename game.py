@@ -1,7 +1,7 @@
 import tkinter
 
 from boggle_board_randomizer import randomize_board
-from ex11_utils import Path, Point, get_word
+from ex11_utils import Path, get_word
 
 class Game:
     def __init__(self, width: int, height: int):
@@ -67,28 +67,29 @@ class Game:
 
         for i, row in enumerate(self.__board):
             for j, cell in enumerate(row):
-                point = (i, j)
                 button = tkinter.Button(self.__content, text=cell, font=("Courier", 25))
-                button.bind('<Button-1>', self.__on_click(point))
+                button.bind('<Button-1>', self.__on_click)
                 button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
                 self.__content.grid_columnconfigure(j, weight=1, uniform='button')
             self.__content.grid_rowconfigure(i, weight=1, uniform='1')
 
         self.__init_word_frame()
 
-    def __on_click(self, point: Point):
+    def __on_click(self, e: tkinter.Event):
         path = self.__path
-        def toggle(e: tkinter.Event):
-            button: tkinter.Button = e.widget
-            is_active = point in path
-            if is_active:
-                path.remove(point)
-                button.configure(bg='SystemButtonFace')
-            else:
-                path.append(point)
-                button.configure(bg='#b5d4e3')
-            self.set_word()
-        return toggle
+        button: tkinter.Button = e.widget
+        grid_info = button.grid_info()
+        point = (grid_info['row'], grid_info['column'])
+        is_active = point in path
+
+        if is_active:
+            path.remove(point)
+            button.configure(bg='SystemButtonFace')
+        else:
+            path.append(point)
+            button.configure(bg='#b5d4e3')
+
+        self.set_word()
 
     def set_score(self, score: int):
         self.__score.set(score)
