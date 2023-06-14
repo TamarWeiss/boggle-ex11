@@ -58,7 +58,6 @@ class Game:
 
     def __generate_board(self):
         self.__clear()
-
         self.__init_score_frame()
         self.__content = tkinter.Frame(self.__root)
         self.__content.pack(fill='both', expand=True)
