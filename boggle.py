@@ -1,8 +1,9 @@
+from itertools import groupby
 from tkinter import *
 from tkinter import font
 
 from boggle_board_randomizer import randomize_board
-from ex11_utils import Path, get_word
+from ex11_utils import FILENAME, get_word, is_valid_path, load_words
 from list_var import ListVar
 
 TIME = 180
@@ -14,6 +15,11 @@ class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__score = IntVar(value=0)
+        self.__words = load_words(FILENAME)
+        self.__history = ListVar()
+        self.__word = StringVar()
+        self.__path = ListVar()
+        self.__path.trace_add('write', lambda *args: self.set_word())
 
         self.__root.title('Boggle')
         self.__center(width, height)
@@ -36,7 +42,7 @@ class Boggle:
     def __init_title_screen(self, end=False):
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
         self.__clear()
-        self.__history = ListVar()
+        self.__history.set([])
 
         frame = Frame(self.__root)
         title = Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, 30), pady=5)
@@ -64,7 +70,7 @@ class Boggle:
             selectbackground=OG,
             selectforeground='black',
             highlightthickness=0,
-            font=(FONT, 16),
+            font=(FONT, 14),
             listvariable=self.__history,
             width=10,
         )
@@ -111,46 +117,83 @@ class Boggle:
             self.__init_title_screen(end=True)
 
     def __init_word_frame(self):
-        self.__word = StringVar()
+        self.__word.set('')
         frame = Frame(self.__root, pady=10)
-        frame.pack(side='bottom')
+        frame.pack(side='bottom', fill='x')
+
         self.init_var_label(frame, 'Word:', self.__word, 0, fontsize=18)
+        button = Button(frame, text='Set', font=(FONT, 18), command=self.check_word)
+        button.grid(row=0, column=2, sticky=W)
+
+        for i in range(3): frame.columnconfigure(i, weight=1)
 
     def __generate_board(self):
         self.__clear()
         self.__init_history_sidebar()
         self.__init_score_frame()
-        self.__content = Frame(self.__root)
-        self.__content.pack(fill='both', expand=True, padx=(10, 0))
-        self.__board = randomize_board()
-        self.__path = ListVar()
-        self.__path.trace_add('write', lambda *args: self.set_word(self.__path.get()))
+        self.__board = Frame(self.__root)
+        self.__board.pack(fill='both', expand=True, padx=(10, 0))
+        board = randomize_board()
 
-        for i, row in enumerate(self.__board):
+        for i, row in enumerate(board):
             for j, cell in enumerate(row):
-                button = Button(self.__content, text=cell, font=("Courier", 25))
+                button = Button(self.__board, text=cell, font=("Courier", 25))
                 button.bind('<Button-1>', self.__on_click)
                 button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
-                self.__content.grid_columnconfigure(j, weight=1, uniform='button')
-            self.__content.grid_rowconfigure(i, weight=1, uniform='1')
+                self.__board.grid_columnconfigure(j, weight=1, uniform='button')
+            self.__board.grid_rowconfigure(i, weight=1, uniform='1')
 
         self.__init_word_frame()
+
+    @staticmethod
+    def get_button_coords(button: Widget):
+        grid_info = button.grid_info()
+        return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
         path = self.__path
         button: Button = e.widget
-        grid_info = button.grid_info()
-        point = (grid_info['row'], grid_info['column'])
+        point = self.get_button_coords(button)
         is_active = point in path.get()
 
         button.configure(bg='#b5d4e3' if not is_active else OG)
         path.remove(point) if is_active else path.append(point)
 
+    def check_word(self):
+        path = self.__path.get()
+        word = is_valid_path(self.get_board(), path, self.__words)
+        is_valid = word and word not in self.__history.get()
+        buttons = [
+            button for button in self.__board.winfo_children()
+            if self.get_button_coords(button) in self.__path
+        ]
+
+        if is_valid:
+            self.__history.append(word)
+            self.add_score(len(path))
+
+        self.flash_buttons(buttons, 'green' if is_valid else 'red')
+        self.__path.set([])
+
+    def flash_buttons(self, buttons: list[Widget], color=OG):
+        for button in buttons:
+            button: Button
+            button.configure(bg=color)
+
+        if color != OG:
+            self.__board.after(250, self.flash_buttons, buttons)
+
+    def get_board(self):
+        return [
+            [button.cget('text') for button in row]
+            for _, row in groupby(self.__board.winfo_children(), lambda button: self.get_button_coords(button)[0])
+        ]
+
     def add_score(self, score: int):
         self.__score.set(self.__score.get() + score)
 
-    def set_word(self, path: Path):
-        self.__word.set(get_word(self.__board, path))
+    def set_word(self):
+        self.__word.set(get_word(self.get_board(), self.__path.get()))
 
     def start(self):
         self.__root.mainloop()
