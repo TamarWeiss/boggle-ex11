@@ -28,7 +28,7 @@ class Boggle:
         for widget in self.__root.winfo_children():
             widget.destroy()
 
-    def __init_title_screen(self, end=True):
+    def __init_title_screen(self, end=False):
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
         self.__clear()
         frame = Frame(self.__root)
