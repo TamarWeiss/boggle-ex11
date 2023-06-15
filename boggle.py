@@ -1,13 +1,14 @@
 from tkinter import *
-from typing import Union
 
 from boggle_board_randomizer import randomize_board
 from ex11_utils import Path, get_word
 
+TIME = 180
+
 class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
-        self.__time = IntVar(value=60)
+        self.__time = DoubleVar(value=TIME)
         self.__score = IntVar(value=0)
 
         self.__root.title('Boggle')
@@ -28,6 +29,13 @@ class Boggle:
         for widget in self.__root.winfo_children():
             widget.destroy()
 
+    @staticmethod
+    def init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=20):
+        label = Label(root, text=text, font=('sans serif', fontsize))
+        var_label = Label(root, textvariable=var, font=('sans serif', fontsize))
+        label.grid(row=0, column=2 * i, sticky=E)
+        var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
+
     def __init_title_screen(self, end=False):
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
         self.__clear()
@@ -44,7 +52,7 @@ class Boggle:
         button.pack(side=TOP, pady=10)
 
     def __init_score_frame(self):
-        self.__time.set(60)  # TODO: get initial seconds via a variable?
+        self.__time.set(TIME)
         self.__score.set(0)
 
         frame = Frame(self.__root)
@@ -54,14 +62,14 @@ class Boggle:
 
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
-        self.__root.after(1000, self.count_down)
+        self.__root.after(100, self.count_down)
 
     def count_down(self):
         """Counts down the timer. If done, it calls the end screen."""
         time = self.__time
         if time.get() > 0:
-            time.set(self.__time.get() - 1)
-            self.__root.after(1000, self.count_down)
+            time.set(round(self.__time.get() - 0.1, 2))
+            self.__root.after(100, self.count_down)
         else:
             self.__init_title_screen(end=True)
 
@@ -70,13 +78,6 @@ class Boggle:
         frame = Frame(self.__root, pady=10)
         frame.pack(side='bottom')
         self.init_var_label(frame, 'Word:', self.__word, 0, fontsize=18)
-
-    @staticmethod
-    def init_var_label(root: Widget, text: str, var: Union[IntVar, StringVar], i=0, fontsize=20):
-        label = Label(root, text=text, font=('sans serif', fontsize))
-        var_label = Label(root, textvariable=var, font=('sans serif', fontsize))
-        label.grid(row=0, column=2 * i, sticky=E)
-        var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
 
     def __generate_board(self):
         self.__clear()
