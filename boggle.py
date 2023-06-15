@@ -10,6 +10,8 @@ TIME = 180
 REFRESH_RATE = 100
 OG = 'SystemButtonFace'
 FONT = 'sans serif'
+RED = '#ff8080'
+GREEN = '#afef8f'
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -172,7 +174,7 @@ class Boggle:
             self.__history.append(word)
             self.add_score(len(path))
 
-        self.flash_buttons(buttons, 'green' if is_valid else 'red')
+        self.flash_buttons(buttons, GREEN if is_valid else RED)
         self.__path.set([])
 
     def flash_buttons(self, buttons: list[Widget], color=OG):
