@@ -19,9 +19,13 @@ class Boggle:
         self.__score = IntVar(value=0)
         self.__words = load_words(FILENAME)
         self.__history = ListVar()
-        self.__word = StringVar()
         self.__path = ListVar()
-        self.__path.trace_add('write', lambda *args: self.set_word())
+        self.__word = StringVar()
+        self.__seconds = DoubleVar(value=TIME)
+        self.__time = StringVar(value=self.format_time())
+
+        self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
+        self.__seconds.trace_add('write', lambda *args: self.__time.set(self.format_time()))
 
         self.__root.title('Boggle')
         self.__center(width, height)
@@ -92,8 +96,7 @@ class Boggle:
         var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
 
     def __init_score_frame(self):
-        self.__seconds = float(TIME)
-        self.__time = StringVar(value=self.format_time())
+        self.__seconds.set(TIME)
         self.__score.set(0)
 
         frame = Frame(self.__root)
@@ -106,14 +109,14 @@ class Boggle:
         self.__root.after(REFRESH_RATE, self.count_down)
 
     def format_time(self):
-        seconds = f'{round(self.__seconds % 60, 2)}'.zfill(4)
-        return f'{int(self.__seconds / 60)}:{seconds}'
+        seconds = self.__seconds.get()
+        return f'{int(seconds / 60)}:{str(round(seconds % 60, 2)).zfill(4)}'
 
     def count_down(self):
         """Counts down the timer. If it's done, it calls the end screen."""
-        if self.__seconds > 0:
-            self.__seconds -= 0.1
-            self.__time.set(self.format_time())
+        seconds = self.__seconds.get()
+        if seconds > 0:
+            self.__seconds.set(seconds - 0.1)
             self.__root.after(REFRESH_RATE, self.count_down)
         else:
             self.__init_title_screen(end=True)
@@ -148,14 +151,14 @@ class Boggle:
         self.__init_word_frame()
 
     @staticmethod
-    def get_button_coords(button: Widget):
+    def __get_button_coords(button: Widget):
         grid_info = button.grid_info()
         return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
         path = self.__path
         button: Button = e.widget
-        point = self.get_button_coords(button)
+        point = self.__get_button_coords(button)
         is_active = point in path.get()
 
         button.configure(bg='#b5d4e3' if not is_active else OG)
@@ -167,12 +170,12 @@ class Boggle:
         is_valid = word and word not in self.__history.get()
         buttons = [
             button for button in self.__board.winfo_children()
-            if self.get_button_coords(button) in self.__path
+            if self.__get_button_coords(button) in self.__path
         ]
 
         if is_valid:
             self.__history.append(word)
-            self.add_score(len(path))
+            self.__score.set(self.__score.get() + len(path))
 
         self.flash_buttons(buttons, GREEN if is_valid else RED)
         self.__path.set([])
@@ -188,14 +191,8 @@ class Boggle:
     def get_board(self):
         return [
             [button.cget('text') for button in row]
-            for _, row in groupby(self.__board.winfo_children(), lambda button: self.get_button_coords(button)[0])
+            for _, row in groupby(self.__board.winfo_children(), lambda button: self.__get_button_coords(button)[0])
         ]
-
-    def add_score(self, score: int):
-        self.__score.set(self.__score.get() + score)
-
-    def set_word(self):
-        self.__word.set(get_word(self.get_board(), self.__path.get()))
 
     def start(self):
         self.__root.mainloop()
