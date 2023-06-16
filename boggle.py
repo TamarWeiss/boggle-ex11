@@ -2,6 +2,8 @@ from itertools import groupby
 from tkinter import *
 from tkinter import font
 
+from pygame import mixer
+
 from boggle_board_randomizer import randomize_board
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
 from list_var import ListVar
@@ -10,8 +12,13 @@ TIME = 180
 REFRESH_RATE = 100
 OG = 'SystemButtonFace'
 FONT = 'sans serif'
+FONTSIZE = 20
+FULL_FONT = (FONT, FONTSIZE)
 RED = '#ff8080'
 GREEN = '#afef8f'
+CLICK = 'click.mp3'
+FAIL = 'honk.mp3'
+SUCCESS = '1_up.wav'
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -23,6 +30,8 @@ class Boggle:
         self.__word = StringVar()
         self.__seconds = DoubleVar(value=TIME)
         self.__time = StringVar(value=self.format_time())
+        mixer.init()
+        self.__audio_player = mixer.music
 
         self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
         self.__seconds.trace_add('write', lambda *args: self.__time.set(self.format_time()))
@@ -51,21 +60,21 @@ class Boggle:
         self.__history.set([])
 
         frame = Frame(self.__root)
-        title = Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, 30), pady=5)
-        button = Button(frame, text='Play' if not end else 'Restart', font=(FONT, 20),
+        title = Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5)
+        button = Button(frame, text='Play' if not end else 'Restart', font=FULL_FONT,
             command=self.__generate_board)
 
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
         title.pack(side=TOP)
         if end:
-            score = Label(frame, text=f'Final Score: {self.__score.get()}', font=(FONT, 20), pady=5)
+            score = Label(frame, text=f'Final Score: {self.__score.get()}', font=FULL_FONT, pady=5)
             score.pack(side=TOP)
         button.pack(side=TOP, pady=10)
 
     def __init_history_sidebar(self):
         frame = Frame(self.__root)
 
-        f = font.Font(font=(FONT, 18))
+        f = font.Font(font=(FONT, FONTSIZE - 2))
         f.configure(underline=True)
         label = Label(frame, text='History', font=f)
         scrollbar = Scrollbar(frame, )
@@ -76,7 +85,7 @@ class Boggle:
             selectbackground=OG,
             selectforeground='black',
             highlightthickness=0,
-            font=(FONT, 14),
+            font=(FONT, FONTSIZE - 6),
             listvariable=self.__history,
             width=10,
         )
@@ -88,7 +97,7 @@ class Boggle:
         scrollbar.pack(side='right', fill='y', pady=(0, 10))
 
     @staticmethod
-    def init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=18):
+    def init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
         label = Label(root, text=text, font=(FONT, fontsize))
         var_label = Label(root, textvariable=var, font=(FONT, fontsize))
 
@@ -115,7 +124,7 @@ class Boggle:
     def count_down(self):
         """Counts down the timer. If it's done, it calls the end screen."""
         seconds = self.__seconds.get()
-        if seconds > 0:
+        if seconds > 0.1:
             self.__seconds.set(seconds - 0.1)
             self.__root.after(REFRESH_RATE, self.count_down)
         else:
@@ -126,8 +135,8 @@ class Boggle:
         frame = Frame(self.__root, pady=10)
         frame.pack(side='bottom', fill='x')
 
-        self.init_var_label(frame, 'Word:', self.__word, 0, fontsize=18)
-        button = Button(frame, text='Set', font=(FONT, 18), command=self.check_word)
+        self.init_var_label(frame, 'Word:', self.__word, 0)
+        button = Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check_word)
         button.grid(row=0, column=2, sticky=W)
 
         for i in range(3): frame.columnconfigure(i, weight=1)
@@ -151,33 +160,40 @@ class Boggle:
         self.__init_word_frame()
 
     @staticmethod
-    def __get_button_coords(button: Widget):
+    def __button_coords(button: Widget):
         grid_info = button.grid_info()
         return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
         path = self.__path
         button: Button = e.widget
-        point = self.__get_button_coords(button)
+        point = self.__button_coords(button)
         is_active = point in path.get()
 
         button.configure(bg='#b5d4e3' if not is_active else OG)
         path.remove(point) if is_active else path.append(point)
+        self.play_sound(CLICK)
 
+    @staticmethod
+    def play_sound(filename: str):
+        mixer.music.load(filename)
+        mixer.music.play(0)
     def check_word(self):
         path = self.__path.get()
         word = is_valid_path(self.get_board(), path, self.__words)
         is_valid = word and word not in self.__history.get()
+        color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
         buttons = [
             button for button in self.__board.winfo_children()
-            if self.__get_button_coords(button) in self.__path
+            if self.__button_coords(button) in self.__path
         ]
 
         if is_valid:
             self.__history.append(word)
-            self.__score.set(self.__score.get() + len(path))
+            self.__score.set(self.__score.get() + len(path) ** 2)
 
-        self.flash_buttons(buttons, GREEN if is_valid else RED)
+        self.play_sound(sound)
+        self.flash_buttons(buttons, color)
         self.__path.set([])
 
     def flash_buttons(self, buttons: list[Widget], color=OG):
@@ -191,7 +207,7 @@ class Boggle:
     def get_board(self):
         return [
             [button.cget('text') for button in row]
-            for _, row in groupby(self.__board.winfo_children(), lambda button: self.__get_button_coords(button)[0])
+            for _, row in groupby(self.__board.winfo_children(), lambda button: self.__button_coords(button)[0])
         ]
 
     def start(self):
