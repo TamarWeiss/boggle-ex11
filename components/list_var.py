@@ -12,9 +12,9 @@ class ListVar(Variable):
         self.set(self.get() + [value])
 
     def remove(self, value):
-        list_var = self.get()
-        list_var.remove(value)
-        self.set(list_var)
+        var = self.get()
+        var.remove(value)
+        self.set(var)
 
     def __getitem__(self, index: int):
         return self.get()[index]

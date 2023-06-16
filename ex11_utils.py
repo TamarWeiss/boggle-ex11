@@ -2,10 +2,7 @@ from pprint import pprint
 from typing import Generator, Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
-
-Board = list[list[str]]
-Point = tuple[int, int]
-Path = list[Point]
+from consts import Board, Path, Point
 
 def is_neighbor(point1: Point, point2: Point) -> bool:
     y1, x1 = point1
