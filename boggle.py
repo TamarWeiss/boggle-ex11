@@ -39,6 +39,7 @@ class Boggle:
             widget.destroy()
 
     def start(self):
+        """Starts the game"""
         self.__root.mainloop()
 
     # ---------------------------------------------------
@@ -60,11 +61,8 @@ class Boggle:
         ).pack(side='top', pady=PAD)
 
     def __init_score(self):
-        frame = Frame(self.__root)
-        frame.pack(side='right', fill='y', padx=(10, 0))
-        self.__history.pack(frame)
+        """Initialize the score and timer frame"""
         self.__score.reset()
-
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
         self.__score.pack(frame)
@@ -75,6 +73,7 @@ class Boggle:
         self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
     def __init_word(self, board: Board):
+        """Initialize the word frame"""
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
@@ -88,7 +87,13 @@ class Boggle:
     # ---------------------------------------------------------------
 
     def __generate_board(self):
+        """Initialize the game's board, along with its complimentary ui."""
         self.__clear()
+
+        frame = Frame(self.__root)
+        frame.pack(side='right', fill='y', padx=(10, 0))
+        self.__history.pack(frame)
+
         self.__init_score()
         self.__board = Frame(self.__root)
         self.__board.pack(fill='both', expand=True, padx=(PAD, 0))
