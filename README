@@ -1,1 +1,7 @@
 <Describe your project's features here>
+we decided to add sound effects to our project using the pygame module.
+this adds greater responsiveness to the game by giving feedback,
+and allows the user to have a better sense of control and alerts them
+when time is running out. 
+we created a sound for a click, for finding a correct word or if an incorrect word was submitted
+as well as for the end of the game. 
