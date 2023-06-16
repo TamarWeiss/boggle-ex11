@@ -7,23 +7,23 @@ from components.list_var import ListVar
 from components.music import Music
 from components.score import Score
 from components.timer import Timer
+from components.word import Word
 from consts import *
-from ex11_utils import FILENAME, get_word, is_valid_path, load_words
+from ex11_utils import FILENAME, is_valid_path, load_words
 
 class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__words = load_words(FILENAME)
         self.__path = ListVar()
-        self.__word = StringVar()
 
         self.__history = History()
         self.__music = Music()
         self.__timer = Timer(TIME)
         self.__score = Score()
+        self.__word = Word()
 
         self.__root.title('Boggle')
-        self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
         self.__center(width, height)
         self.__init_title_screen()
 
@@ -50,6 +50,8 @@ class Boggle:
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
         self.__clear()
         self.__history.reset()
+        self.__timer.reset()
+        self.__word.reset()
 
         frame = Frame(self.__root)
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -69,8 +71,10 @@ class Boggle:
         var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
 
     def __init_score_frame(self):
+        frame = Frame(self.__root)
+        frame.pack(side='right', fill='y', padx=(10, 0))
+        self.__history.pack(frame)
         self.__score.reset()
-        self.__timer.reset()
 
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
@@ -81,12 +85,11 @@ class Boggle:
             frame.columnconfigure(i, weight=1)
         self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
-    def __init_word_frame(self):
-        self.__word.set('')
+    def __init_word_frame(self, board: Board):
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
+        self.__word.pack(frame, board)
 
-        self.__init_var_label(frame, 'Word:', self.__word, 0)
         Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check).grid(row=0, column=2, sticky='w')
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
@@ -95,10 +98,6 @@ class Boggle:
 
     def __generate_board(self):
         self.__clear()
-
-        frame = Frame(self.__root)
-        frame.pack(side='right', fill='y', padx=(10, 0))
-        self.__history.pack(frame)
         self.__init_score_frame()
 
         self.__board = Frame(self.__root)
@@ -113,7 +112,7 @@ class Boggle:
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
             self.__board.grid_rowconfigure(i, weight=1, uniform='1')
 
-        self.__init_word_frame()
+        self.__init_word_frame(board)
 
     @staticmethod
     def __button_coords(button: Widget) -> Point:
@@ -121,23 +120,23 @@ class Boggle:
         return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
-        path = self.__path
+        path = self.__word.var
         button: Button = e.widget
         point = self.__button_coords(button)
-        is_active = point in path.get()
+        is_active = point in path
 
         button.configure(bg='#b5d4e3' if not is_active else OG)
-        path.remove(point) if is_active else path.append(point)
+        self.__word.remove(point) if is_active else self.__word.add(point)
         self.__music.play(CLICK)
 
     def check(self):
-        path = self.__path.get()
+        path = self.__word.get()
         word = is_valid_path(self.get_board(), path, self.__words)
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
         buttons = [
             button for button in self.__board.winfo_children()
-            if self.__button_coords(button) in self.__path
+            if self.__button_coords(button) in path
         ]
 
         if is_valid:
@@ -146,7 +145,7 @@ class Boggle:
 
         self.__music.play(sound)
         self.flash_buttons(buttons, color)
-        self.__path.set([])
+        self.__word.reset()
 
     def flash_buttons(self, buttons: list[Widget], color=OG):
         for button in buttons:

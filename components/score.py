@@ -10,7 +10,7 @@ class Score(VarLabel):
     def pack_result(self, root: Widget):
         Label(root, text=f'Final Score: {self.get()}', font=FULL_FONT, pady=5).pack(side='top')
 
-    def pack(self, root: Widget, text='Score:'):
+    def pack(self, root: Widget):
         super().pack(root, 'Score:', 1)
 
     def add(self, score: int) -> int:
