@@ -39,7 +39,6 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
         if point not in curr_path
     )
 
-# TODO: find a way to make this a generator in order to save memory
 def word_combinations(board: Board, n=1):
     paths = [[]]
     for i in range(n):
