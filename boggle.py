@@ -2,14 +2,13 @@ from itertools import groupby
 from tkinter import *
 
 from boggle_board_randomizer import randomize_board
+from components.history import History
+from components.list_var import ListVar
+from components.music import Music
+from components.score import Score
+from components.timer import Timer
 from consts import *
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
-from history import History
-from list_var import ListVar
-from music import Music
-from score import Score
-from timer import Timer
-
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -20,7 +19,7 @@ class Boggle:
 
         self.__history = History()
         self.__music = Music()
-        self.__timer = Timer()
+        self.__timer = Timer(TIME)
         self.__score = Score()
 
         self.__root.title('Boggle')
@@ -53,13 +52,13 @@ class Boggle:
         self.__history.reset()
 
         frame = Frame(self.__root)
-        title = Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5)
-        button = Button(frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board)
-
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
-        title.pack(side='top')
+
+        Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5).pack(side='top')
         end and self.__score.pack_result(frame)
-        button.pack(side='top', pady=PAD)
+        Button(
+            frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board
+        ).pack(side='top', pady=PAD)
 
     @staticmethod
     def __init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
@@ -80,18 +79,17 @@ class Boggle:
 
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
-        self.__root.after(REFRESH_RATE, self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
+        self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
     def __init_word_frame(self):
         self.__word.set('')
-        frame = Frame(self.__root, pady=10)
+        frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
 
         self.__init_var_label(frame, 'Word:', self.__word, 0)
-        button = Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check)
-        button.grid(row=0, column=2, sticky=W)
-
-        for i in range(3): frame.columnconfigure(i, weight=1)
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check).grid(row=0, column=2, sticky='w')
+        for i in range(len(frame.children)):
+            frame.columnconfigure(i, weight=1)
 
     # ---------------------------------------------------------------
 
@@ -163,7 +161,6 @@ class Boggle:
             [button.cget('text') for button in row]
             for _, row in groupby(self.__board.winfo_children(), lambda button: self.__button_coords(button)[0])
         ]
-
 
 if __name__ == "__main__":
     Boggle(SIZE, SIZE).start()
