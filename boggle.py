@@ -7,6 +7,7 @@ from consts import *
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
 from list_var import ListVar
 from music import Music
+from timer import Timer
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -16,14 +17,11 @@ class Boggle:
         self.__history = ListVar()
         self.__path = ListVar()
         self.__word = StringVar()
-        self.__seconds = DoubleVar(value=TIME)
-        self.__time = StringVar(value=self.format_time())
         self.__music = Music()
-
-        self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
-        self.__seconds.trace_add('write', lambda *args: self.__time.set(self.format_time()))
+        self.__timer = Timer()
 
         self.__root.title('Boggle')
+        self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
         self.__center(width, height)
         self.__init_title_screen()
 
@@ -65,11 +63,11 @@ class Boggle:
 
     def __init_history_sidebar(self):
         frame = Frame(self.__root)
-
         f = font.Font(font=(FONT, FONTSIZE - 2))
         f.configure(underline=True)
         label = Label(frame, text='History', font=f)
-        scrollbar = Scrollbar(frame, )
+
+        scrollbar = Scrollbar(frame)
         history = Listbox(frame,
             yscrollcommand=scrollbar.set,
             activestyle='none',
@@ -89,7 +87,7 @@ class Boggle:
         scrollbar.pack(side='right', fill='y', pady=(0, 10))
 
     @staticmethod
-    def init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
+    def __init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
         label = Label(root, text=text, font=(FONT, fontsize))
         var_label = Label(root, textvariable=var, font=(FONT, fontsize))
 
@@ -97,24 +95,24 @@ class Boggle:
         var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
 
     def __init_score_frame(self):
-        self.__seconds.set(TIME)
         self.__score.set(0)
+        self.__timer.reset()
 
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=20, pady=10)
-        self.init_var_label(frame, 'Time:', self.__time, 0)
-        self.init_var_label(frame, 'Score:', self.__score, 1)
+        self.__init_var_label(frame, 'Score:', self.__score, 1)
+        self.__timer.pack(frame)
 
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
-        self.__root.after(REFRESH_RATE, self.count_down)
+        self.__root.after(REFRESH_RATE, self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
     def __init_word_frame(self):
         self.__word.set('')
         frame = Frame(self.__root, pady=10)
         frame.pack(side='bottom', fill='x')
 
-        self.init_var_label(frame, 'Word:', self.__word, 0)
+        self.__init_var_label(frame, 'Word:', self.__word, 0)
         button = Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check_word)
         button.grid(row=0, column=2, sticky=W)
 
@@ -155,19 +153,6 @@ class Boggle:
         path.remove(point) if is_active else path.append(point)
         self.__music.play(CLICK)
 
-    def format_time(self) -> str:
-        seconds = self.__seconds.get()
-        return f'{int(seconds / 60)}:{str(round(seconds % 60, 2)).zfill(4)}'
-
-    def count_down(self):
-        """Counts down the timer. If it's done, it calls the end screen."""
-        self.__seconds.set(self.__seconds.get() - 0.1)
-        seconds = round(self.__seconds.get(), 2)
-        if seconds > 0:
-            seconds == 30 and self.__music.play(HURRY)
-            self.__root.after(REFRESH_RATE, self.count_down)
-        else:
-            self.__init_title_screen(end=True)
     def check_word(self):
         path = self.__path.get()
         word = is_valid_path(self.get_board(), path, self.__words)
