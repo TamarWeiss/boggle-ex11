@@ -8,6 +8,7 @@ TIME = 180
 NEAR_END = 30
 HURRY = 'hurry-up.mp3'
 
+
 class Timer:
     def __init__(self):
         self.__root: Optional[Widget] = None
@@ -18,11 +19,8 @@ class Timer:
 
     def pack(self, root: Widget):
         self.__root = root
-        label = Label(root, text='Time:', font=(FONT, FONTSIZE - 2))
-        timer = Label(root, textvariable=self.__time, font=(FONT, FONTSIZE - 2))
-
-        label.grid(row=0, column=0, sticky='e')
-        timer.grid(row=0, column=1, padx=5, sticky='w')
+        Label(root, text='Time:', font=(FONT, FONTSIZE - 2)).grid(row=0, column=0, sticky='e')
+        Label(root, textvariable=self.__time, font=(FONT, FONTSIZE - 2)).grid(row=0, column=1, padx=5, sticky='w')
 
     def __substract(self) -> float:
         seconds = round(self.__seconds.get() - REFRESH_RATE / 1000, 2)

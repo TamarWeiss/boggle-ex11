@@ -1,6 +1,6 @@
 from tkinter import Widget, font, Scrollbar, Label, Listbox
 
-from consts import *
+from consts import FONTSIZE, FONT, PAD, OG
 from list_var import ListVar
 
 
@@ -23,12 +23,12 @@ class History:
                           highlightthickness=0,
                           font=(FONT, FONTSIZE - 6),
                           listvariable=self.__history,
-                          width=PADDING)
+                          width=PAD)
         scrollbar.config(command=history.yview)
 
-        label.pack(pady=PADDING)
-        history.pack(side='left', fill='y', pady=(0, PADDING))
-        scrollbar.pack(side='right', fill='y', pady=(0, PADDING))
+        label.pack(pady=PAD)
+        history.pack(side='left', fill='y', pady=(0, PAD))
+        scrollbar.pack(side='right', fill='y', pady=(0, PAD))
 
     def get(self) -> list[str]:
         return self.__history.get()

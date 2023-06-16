@@ -4,7 +4,7 @@ REFRESH_RATE = 100
 FONT = 'sans serif'
 FONTSIZE = 18
 FULL_FONT = (FONT, FONTSIZE)
-PADDING = 10
+PAD = 10
 
 OG = 'SystemButtonFace'
 RED = '#ff8080'

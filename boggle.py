@@ -7,13 +7,13 @@ from ex11_utils import FILENAME, get_word, is_valid_path, load_words
 from history import History
 from list_var import ListVar
 from music import Music
+from score import Score
 from timer import Timer
 
 
 class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
-        self.__score = IntVar(value=0)
         self.__words = load_words(FILENAME)
         self.__path = ListVar()
         self.__word = StringVar()
@@ -21,6 +21,7 @@ class Boggle:
         self.__history = History()
         self.__music = Music()
         self.__timer = Timer()
+        self.__score = Score()
 
         self.__root.title('Boggle')
         self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
@@ -56,11 +57,9 @@ class Boggle:
         button = Button(frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board)
 
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
-        title.pack(side=TOP)
-        if end:
-            score = Label(frame, text=f'Final Score: {self.__score.get()}', font=FULL_FONT, pady=5)
-            score.pack(side=TOP)
-        button.pack(side=TOP, pady=10)
+        title.pack(side='top')
+        end and self.__score.pack_result(frame)
+        button.pack(side='top', pady=PAD)
 
     @staticmethod
     def __init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
@@ -71,12 +70,12 @@ class Boggle:
         var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
 
     def __init_score_frame(self):
-        self.__score.set(0)
+        self.__score.reset()
         self.__timer.reset()
 
         frame = Frame(self.__root)
-        frame.pack(side='top', fill='x', padx=20, pady=10)
-        self.__init_var_label(frame, 'Score:', self.__score, 1)
+        frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
+        self.__score.pack(frame)
         self.__timer.pack(frame)
 
         for i in range(len(frame.children)):
@@ -145,7 +144,7 @@ class Boggle:
 
         if is_valid:
             self.__history.add(word)
-            self.__score.set(self.__score.get() + len(path) ** 2)
+            self.__score.add(len(path) ** 2)
 
         self.__music.play(sound)
         self.flash_buttons(buttons, color)
