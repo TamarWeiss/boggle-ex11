@@ -1,14 +1,14 @@
 from tkinter import Widget, Label
 
 from components.var_label import VarLabel
-from consts import FULL_FONT
+from consts import FONT, FONTSIZE
 
 class Score(VarLabel):
     def __init__(self):
         super().__init__(0)
 
     def pack_result(self, root: Widget):
-        Label(root, text=f'Final Score: {self.get()}', font=FULL_FONT, pady=5).pack(side='top')
+        Label(root, text=f'Final Score: {self.get()}', font=(FONT, FONTSIZE), pady=5).pack(side='top')
 
     def pack(self, root: Widget):
         super().pack(root, 'Score:', 1)

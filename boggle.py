@@ -57,7 +57,7 @@ class Boggle:
         Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5).pack(side='top')
         end and self.__score.pack_result(frame)
         Button(
-            frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board
+            frame, text='Play' if not end else 'Restart', font=(FONT, FONTSIZE), command=self.__generate_board
         ).pack(side='top', pady=PAD)
 
     def __init_score(self):

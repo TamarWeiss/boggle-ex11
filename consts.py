@@ -4,7 +4,6 @@ REFRESH_RATE = 100
 
 FONT = 'sans serif'
 FONTSIZE = 18
-FULL_FONT = (FONT, FONTSIZE)
 PAD = 10
 
 OG = 'SystemButtonFace'
