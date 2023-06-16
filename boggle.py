@@ -2,11 +2,8 @@ from itertools import groupby
 from tkinter import *
 from tkinter import font
 
-try: 
-    from pygame import mixer
-    SOUND_AVAILABLE = True 
-except ImportError:
-    SOUND_AVAILABLE = False
+from pygame import mixer
+
 
 from boggle_board_randomizer import randomize_board
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
@@ -38,9 +35,8 @@ class Boggle:
         self.__word = StringVar()
         self.__seconds = DoubleVar(value=TIME)
         self.__time = StringVar(value=self.format_time())
-        if SOUND_AVAILABLE:
-            mixer.init()
-            self.__audio_player = mixer.music
+        mixer.init()
+        self.__audio_player = mixer.music
 
         self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
         self.__seconds.trace_add('write', lambda *args: self.__time.set(self.format_time()))
@@ -160,8 +156,7 @@ class Boggle:
         #and calls itself again in 100 milliseconds
         if seconds > 0.1:
             self.__seconds.set(seconds - 0.1)
-            if SOUND_AVAILABLE:
-                seconds == 30 and self.play_sound(HURRY)
+            seconds == 30 and self.play_sound(HURRY)
             self.__root.after(REFRESH_RATE, self.count_down)
         else:
             self.__init_title_screen(end=True)
@@ -216,13 +211,11 @@ class Boggle:
 
         #change button color and update path
         button.configure(bg='#b5d4e3' if not is_active else OG)
-        path.remove(point) if is_active else path.append(point)
-        if SOUND_AVAILABLE: 
-            self.play_sound(CLICK)
+        path.remove(point) if is_active else path.append(point) 
+        self.play_sound(CLICK)
 
     @staticmethod
     def play_sound(filename: str):
-        if not SOUND_AVAILABLE: return 
         mixer.music.load(filename)
         mixer.music.play(0)
     def check_word(self):
@@ -240,7 +233,6 @@ class Boggle:
             #update the history and score
             self.__history.append(word)
             self.__score.set(self.__score.get() + len(path) ** 2)
-        if SOUND_AVAILABLE: 
             self.play_sound(sound)
         self.flash_buttons(buttons, color)
         self.__path.set([])
