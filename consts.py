@@ -1,6 +1,7 @@
 SIZE = 500
 TIME = 180
 REFRESH_RATE = 100
+DURATION = 250
 
 FONT = 'sans serif'
 FONTSIZE = 18
@@ -10,6 +11,7 @@ PAD = 10
 OG = 'SystemButtonFace'
 RED = '#ff8080'
 GREEN = '#afef8f'
+BLUE = '#b5d4e3'
 
 CLICK = 'click.mp3'
 FAIL = 'honk.mp3'

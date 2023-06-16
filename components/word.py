@@ -10,11 +10,11 @@ class Word(VarLabel):
         super().__init__([])
         self.var = ListVar()
         self.__word = StringVar()
-        self.__board = []
-        self.var.trace_add('write', lambda *args: self.__word.set(get_word(self.__board, self.get())))
+        self.board = []
+        self.var.trace_add('write', lambda *args: self.__word.set(get_word(self.board, self.get())))
 
     def pack(self, root: Widget, board: Board):
-        self.__board = board
+        self.board = board
         super().pack(root, 'Word:', var=self.__word)
 
     def add(self, point: Point):

@@ -6,4 +6,4 @@ class Music:
 
     @staticmethod
     def play(filename: str, loops=0, channel_num=0):
-        mixer.Channel(channel_num).play(mixer.Sound(filename), loops)
+        mixer.Channel(channel_num).play(mixer.Sound('sfx/' + filename), loops)

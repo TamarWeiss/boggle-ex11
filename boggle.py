@@ -1,9 +1,7 @@
-from itertools import groupby
 from tkinter import *
 
 from boggle_board_randomizer import randomize_board
 from components.history import History
-from components.list_var import ListVar
 from components.music import Music
 from components.score import Score
 from components.timer import Timer
@@ -15,10 +13,8 @@ class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__words = load_words(FILENAME)
-        self.__path = ListVar()
-
-        self.__history = History()
         self.__music = Music()
+        self.__history = History()
         self.__timer = Timer(TIME)
         self.__score = Score()
         self.__word = Word()
@@ -89,8 +85,8 @@ class Boggle:
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
-
         Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check).grid(row=0, column=2, sticky='w')
+
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
 
@@ -120,18 +116,18 @@ class Boggle:
         return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
-        path = self.__word.var
+        path = self.__word
         button: Button = e.widget
         point = self.__button_coords(button)
-        is_active = point in path
+        is_active = point in path.get()
 
-        button.configure(bg='#b5d4e3' if not is_active else OG)
-        self.__word.remove(point) if is_active else self.__word.add(point)
+        button.configure(bg=BLUE if not is_active else OG)
+        path.remove(point) if is_active else path.add(point)
         self.__music.play(CLICK)
 
     def check(self):
         path = self.__word.get()
-        word = is_valid_path(self.get_board(), path, self.__words)
+        word = is_valid_path(self.__word.board, path, self.__words)
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
         buttons = [
@@ -153,13 +149,7 @@ class Boggle:
             button.configure(bg=color)
 
         if color != OG:
-            self.__board.after(250, self.flash_buttons, buttons)
-
-    def get_board(self) -> Board:
-        return [
-            [button.cget('text') for button in row]
-            for _, row in groupby(self.__board.winfo_children(), lambda button: self.__button_coords(button)[0])
-        ]
+            self.__board.after(DURATION, self.flash_buttons, buttons)
 
 if __name__ == "__main__":
     Boggle(SIZE, SIZE).start()
