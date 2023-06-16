@@ -58,15 +58,7 @@ class Boggle:
             frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board
         ).pack(side='top', pady=PAD)
 
-    @staticmethod
-    def __init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
-        label = Label(root, text=text, font=(FONT, fontsize))
-        var_label = Label(root, textvariable=var, font=(FONT, fontsize))
-
-        label.grid(row=0, column=2 * i, sticky=E)
-        var_label.grid(row=0, column=2 * i + 1, padx=5, sticky=W)
-
-    def __init_score_frame(self):
+    def __init_score(self):
         frame = Frame(self.__root)
         frame.pack(side='right', fill='y', padx=(10, 0))
         self.__history.pack(frame)
@@ -81,7 +73,7 @@ class Boggle:
             frame.columnconfigure(i, weight=1)
         self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
-    def __init_word_frame(self, board: Board):
+    def __init_word(self, board: Board):
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
@@ -94,10 +86,10 @@ class Boggle:
 
     def __generate_board(self):
         self.__clear()
-        self.__init_score_frame()
+        self.__init_score()
 
         self.__board = Frame(self.__root)
-        self.__board.pack(fill='both', expand=True, padx=(10, 0))
+        self.__board.pack(fill='both', expand=True, padx=(PAD, 0))
         board = randomize_board()
 
         for i, row in enumerate(board):
@@ -108,7 +100,7 @@ class Boggle:
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
             self.__board.grid_rowconfigure(i, weight=1, uniform='1')
 
-        self.__init_word_frame(board)
+        self.__init_word(board)
 
     @staticmethod
     def __button_coords(button: Widget) -> Point:
