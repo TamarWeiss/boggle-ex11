@@ -19,6 +19,7 @@ GREEN = '#afef8f'
 CLICK = 'click.mp3'
 FAIL = 'honk.mp3'
 SUCCESS = '1_up.wav'
+HURRY = 'hurry-up.mp3'
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -123,9 +124,10 @@ class Boggle:
 
     def count_down(self):
         """Counts down the timer. If it's done, it calls the end screen."""
-        seconds = self.__seconds.get()
+        seconds = round(self.__seconds.get(), 2)
         if seconds > 0.1:
             self.__seconds.set(seconds - 0.1)
+            seconds == 30 and self.play_sound(HURRY)
             self.__root.after(REFRESH_RATE, self.count_down)
         else:
             self.__init_title_screen(end=True)
