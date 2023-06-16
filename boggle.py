@@ -1,22 +1,24 @@
 from itertools import groupby
 from tkinter import *
-from tkinter import font
 
 from boggle_board_randomizer import randomize_board
 from consts import *
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
+from history import History
 from list_var import ListVar
 from music import Music
 from timer import Timer
+
 
 class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__score = IntVar(value=0)
         self.__words = load_words(FILENAME)
-        self.__history = ListVar()
         self.__path = ListVar()
         self.__word = StringVar()
+
+        self.__history = History()
         self.__music = Music()
         self.__timer = Timer()
 
@@ -47,12 +49,11 @@ class Boggle:
     def __init_title_screen(self, end=False):
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
         self.__clear()
-        self.__history.set([])
+        self.__history.reset()
 
         frame = Frame(self.__root)
         title = Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5)
-        button = Button(frame, text='Play' if not end else 'Restart', font=FULL_FONT,
-            command=self.__generate_board)
+        button = Button(frame, text='Play' if not end else 'Restart', font=FULL_FONT, command=self.__generate_board)
 
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
         title.pack(side=TOP)
@@ -60,31 +61,6 @@ class Boggle:
             score = Label(frame, text=f'Final Score: {self.__score.get()}', font=FULL_FONT, pady=5)
             score.pack(side=TOP)
         button.pack(side=TOP, pady=10)
-
-    def __init_history_sidebar(self):
-        frame = Frame(self.__root)
-        f = font.Font(font=(FONT, FONTSIZE - 2))
-        f.configure(underline=True)
-        label = Label(frame, text='History', font=f)
-
-        scrollbar = Scrollbar(frame)
-        history = Listbox(frame,
-            yscrollcommand=scrollbar.set,
-            activestyle='none',
-            bg=OG,
-            selectbackground=OG,
-            selectforeground='black',
-            highlightthickness=0,
-            font=(FONT, FONTSIZE - 6),
-            listvariable=self.__history,
-            width=10,
-        )
-        scrollbar.config(command=history.yview)
-
-        frame.pack(side='right', fill='y', padx=(10, 0))
-        label.pack(pady=10)
-        history.pack(side='left', fill='y', pady=(0, 10))
-        scrollbar.pack(side='right', fill='y', pady=(0, 10))
 
     @staticmethod
     def __init_var_label(root: Widget, text: str, var: Variable, i=0, fontsize=FONTSIZE - 2):
@@ -113,7 +89,7 @@ class Boggle:
         frame.pack(side='bottom', fill='x')
 
         self.__init_var_label(frame, 'Word:', self.__word, 0)
-        button = Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check_word)
+        button = Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check)
         button.grid(row=0, column=2, sticky=W)
 
         for i in range(3): frame.columnconfigure(i, weight=1)
@@ -122,8 +98,12 @@ class Boggle:
 
     def __generate_board(self):
         self.__clear()
-        self.__init_history_sidebar()
+
+        frame = Frame(self.__root)
+        frame.pack(side='right', fill='y', padx=(10, 0))
+        self.__history.pack(frame)
         self.__init_score_frame()
+
         self.__board = Frame(self.__root)
         self.__board.pack(fill='both', expand=True, padx=(10, 0))
         board = randomize_board()
@@ -153,7 +133,7 @@ class Boggle:
         path.remove(point) if is_active else path.append(point)
         self.__music.play(CLICK)
 
-    def check_word(self):
+    def check(self):
         path = self.__path.get()
         word = is_valid_path(self.get_board(), path, self.__words)
         is_valid = word and word not in self.__history.get()
@@ -164,7 +144,7 @@ class Boggle:
         ]
 
         if is_valid:
-            self.__history.append(word)
+            self.__history.add(word)
             self.__score.set(self.__score.get() + len(path) ** 2)
 
         self.__music.play(sound)
@@ -184,6 +164,7 @@ class Boggle:
             [button.cget('text') for button in row]
             for _, row in groupby(self.__board.winfo_children(), lambda button: self.__button_coords(button)[0])
         ]
+
 
 if __name__ == "__main__":
     Boggle(SIZE, SIZE).start()
