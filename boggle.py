@@ -2,24 +2,11 @@ from itertools import groupby
 from tkinter import *
 from tkinter import font
 
-from pygame import mixer
-
 from boggle_board_randomizer import randomize_board
+from consts import *
 from ex11_utils import FILENAME, get_word, is_valid_path, load_words
 from list_var import ListVar
-
-TIME = 180
-REFRESH_RATE = 100
-OG = 'SystemButtonFace'
-FONT = 'sans serif'
-FONTSIZE = 20
-FULL_FONT = (FONT, FONTSIZE)
-RED = '#ff8080'
-GREEN = '#afef8f'
-CLICK = 'click.mp3'
-FAIL = 'honk.mp3'
-SUCCESS = '1_up.wav'
-HURRY = 'hurry-up.mp3'
+from music import Music
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -31,8 +18,7 @@ class Boggle:
         self.__word = StringVar()
         self.__seconds = DoubleVar(value=TIME)
         self.__time = StringVar(value=self.format_time())
-        mixer.init()
-        self.__audio_player = mixer.music
+        self.__music = Music()
 
         self.__path.trace_add('write', lambda *args: self.__word.set(get_word(self.get_board(), self.__path.get())))
         self.__seconds.trace_add('write', lambda *args: self.__time.set(self.format_time()))
@@ -54,6 +40,11 @@ class Boggle:
         """Will clear EVERYTHING in the main root"""
         for widget in self.__root.winfo_children():
             widget.destroy()
+
+    def start(self):
+        self.__root.mainloop()
+
+    # ---------------------------------------------------
 
     def __init_title_screen(self, end=False):
         """Initialize the title screen of the game. Also doubles as the end screen if end boolean is set to True"""
@@ -118,20 +109,6 @@ class Boggle:
             frame.columnconfigure(i, weight=1)
         self.__root.after(REFRESH_RATE, self.count_down)
 
-    def format_time(self):
-        seconds = self.__seconds.get()
-        return f'{int(seconds / 60)}:{str(round(seconds % 60, 2)).zfill(4)}'
-
-    def count_down(self):
-        """Counts down the timer. If it's done, it calls the end screen."""
-        seconds = round(self.__seconds.get(), 2)
-        if seconds > 0.1:
-            self.__seconds.set(seconds - 0.1)
-            seconds == 30 and self.play_sound(HURRY)
-            self.__root.after(REFRESH_RATE, self.count_down)
-        else:
-            self.__init_title_screen(end=True)
-
     def __init_word_frame(self):
         self.__word.set('')
         frame = Frame(self.__root, pady=10)
@@ -142,6 +119,8 @@ class Boggle:
         button.grid(row=0, column=2, sticky=W)
 
         for i in range(3): frame.columnconfigure(i, weight=1)
+
+    # ---------------------------------------------------------------
 
     def __generate_board(self):
         self.__clear()
@@ -162,7 +141,7 @@ class Boggle:
         self.__init_word_frame()
 
     @staticmethod
-    def __button_coords(button: Widget):
+    def __button_coords(button: Widget) -> Point:
         grid_info = button.grid_info()
         return (grid_info['row'], grid_info['column'])
 
@@ -174,12 +153,21 @@ class Boggle:
 
         button.configure(bg='#b5d4e3' if not is_active else OG)
         path.remove(point) if is_active else path.append(point)
-        self.play_sound(CLICK)
+        self.__music.play(CLICK)
 
-    @staticmethod
-    def play_sound(filename: str):
-        mixer.music.load(filename)
-        mixer.music.play(0)
+    def format_time(self) -> str:
+        seconds = self.__seconds.get()
+        return f'{int(seconds / 60)}:{str(round(seconds % 60, 2)).zfill(4)}'
+
+    def count_down(self):
+        """Counts down the timer. If it's done, it calls the end screen."""
+        self.__seconds.set(self.__seconds.get() - 0.1)
+        seconds = round(self.__seconds.get(), 2)
+        if seconds > 0:
+            seconds == 30 and self.__music.play(HURRY)
+            self.__root.after(REFRESH_RATE, self.count_down)
+        else:
+            self.__init_title_screen(end=True)
     def check_word(self):
         path = self.__path.get()
         word = is_valid_path(self.get_board(), path, self.__words)
@@ -194,7 +182,7 @@ class Boggle:
             self.__history.append(word)
             self.__score.set(self.__score.get() + len(path) ** 2)
 
-        self.play_sound(sound)
+        self.__music.play(sound)
         self.flash_buttons(buttons, color)
         self.__path.set([])
 
@@ -206,15 +194,11 @@ class Boggle:
         if color != OG:
             self.__board.after(250, self.flash_buttons, buttons)
 
-    def get_board(self):
+    def get_board(self) -> Board:
         return [
             [button.cget('text') for button in row]
             for _, row in groupby(self.__board.winfo_children(), lambda button: self.__button_coords(button)[0])
         ]
 
-    def start(self):
-        self.__root.mainloop()
-
 if __name__ == "__main__":
-    size = 600
-    Boggle(size, size).start()
+    Boggle(SIZE, SIZE).start()
