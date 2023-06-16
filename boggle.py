@@ -1,13 +1,14 @@
 from tkinter import *
 
 from boggle_board_randomizer import randomize_board
+from components.button import Button
 from components.history import History
 from components.music import Music
 from components.score import Score
 from components.timer import Timer
 from components.word import Word
 from consts import *
-from ex11_utils import FILENAME, is_valid_path, load_words
+from ex11_utils import is_valid_path, load_words
 
 class Boggle:
     def __init__(self, width: int, height: int):
@@ -77,7 +78,9 @@ class Boggle:
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
-        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.check).grid(row=0, column=2, sticky='w')
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check, sfx=False).grid(
+            row=0, column=2, sticky='w'
+        )
 
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
@@ -87,7 +90,6 @@ class Boggle:
     def __generate_board(self):
         self.__clear()
         self.__init_score()
-
         self.__board = Frame(self.__root)
         self.__board.pack(fill='both', expand=True, padx=(PAD, 0))
         board = randomize_board()
@@ -95,53 +97,37 @@ class Boggle:
         for i, row in enumerate(board):
             for j, cell in enumerate(row):
                 button = Button(self.__board, text=cell, font=("Courier", 25))
-                button.bind('<Button-1>', self.__on_click)
+                button.bind('<Button>', self.__on_click, add='+')
                 button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
             self.__board.grid_rowconfigure(i, weight=1, uniform='1')
-
         self.__init_word(board)
-
-    @staticmethod
-    def __button_coords(button: Widget) -> Point:
-        grid_info = button.grid_info()
-        return (grid_info['row'], grid_info['column'])
 
     def __on_click(self, e: Event):
         path = self.__word
         button: Button = e.widget
-        point = self.__button_coords(button)
+        point = button.point()
         is_active = point in path.get()
 
-        button.configure(bg=BLUE if not is_active else OG)
         path.remove(point) if is_active else path.add(point)
-        self.__music.play(CLICK)
+        button.toggle(is_active, BLUE)
 
-    def check(self):
+    def __check(self):
         path = self.__word.get()
         word = is_valid_path(self.__word.board, path, self.__words)
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
-        buttons = [
-            button for button in self.__board.winfo_children()
-            if self.__button_coords(button) in path
-        ]
 
         if is_valid:
             self.__history.add(word)
             self.__score.add(len(path) ** 2)
 
-        self.__music.play(sound)
-        self.flash_buttons(buttons, color)
-        self.__word.reset()
-
-    def flash_buttons(self, buttons: list[Widget], color=OG):
-        for button in buttons:
+        for button in self.__board.winfo_children():
             button: Button
-            button.configure(bg=color)
+            button.point() in path and button.flash(color)
 
-        if color != OG:
-            self.__board.after(DURATION, self.flash_buttons, buttons)
+        self.__music.play(sound)
+        self.__word.reset()
 
 if __name__ == "__main__":
     Boggle(SIZE, SIZE).start()

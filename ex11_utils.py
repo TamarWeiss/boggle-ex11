@@ -2,7 +2,7 @@ from pprint import pprint
 from typing import Generator, Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
-from consts import Board, Path, Point
+from consts import Board, Path, Point, FILENAME
 
 def is_neighbor(point1: Point, point2: Point) -> bool:
     y1, x1 = point1
@@ -111,8 +111,6 @@ def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
         if not paths: break
         max_paths = paths
     return list({get_word(board, path): path for path in max_paths}.values())
-
-FILENAME = 'boggle_dict.txt'
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
