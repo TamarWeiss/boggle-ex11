@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import Generator, Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
@@ -42,7 +41,6 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
         if point not in curr_path
     )
 
-# TODO: find a way to make this a generator in order to save memory
 def word_combinations(board: Board, n=1):
     paths = [[point] for point in board_coords(board)]
 
@@ -65,78 +63,16 @@ def word_combinations(board: Board, n=1):
         paths = new_paths
     return paths
 
-def check_set(words):
-    set5, set10 = set(), set()
-    for word in words:
-        if len(word) >= 10:
-            set10.add(word[:10])
-        if len(word) >= 5:
-            set5.add(word[:5])
-    return (set5, set10)
-
-
- 
-
-
-
-class PathFinder:
-    '''create a class which will include the word sets and path dict
-    '''
-    def __init__(self, board: Board, words: Iterable[str]):
-        #get words as set, and subset of length 5 and 10 to filter useless paths
-        self.board = board
-        self.words = set(words)
-        self.word_sets = check_set(self.words)
-        self.words5, self.words10 = self.word_sets
-        self.paths_dict = dict()
-    
-    def path_combinations2(self, n=1) -> Generator[Path, any, any]:
-        '''    for each step, get the current word, word check if it is in the word set. 
-        if so, 
-        check if the word is already in my paths_dict, and if so, add the current path to it's key 
-        as a tuple of tuples: {'word_1' : (((location),(location)),((location),location)))}.
-        so ultimately the values will be tuples, which contain tuples of tuples representing paths. 
-        also, if the current word is of length 5 or 10, check if it's substring is in th e5 or 10 substring set. 
-        if not - that path ends. otherwise - carry on
-        '''
-        if n < 2:
-            for point in board_coords(self.board):
-                yield [point]
-        else:
-            for curr_path in self.path_combinations2(n - 1):
-                for point in get_neighbors(curr_path[-1]):
-                    if point not in curr_path:
-                        new_path = curr_path + [point]
-                        word = get_word(self.board, new_path)
-                        if word in self.words:
-                            # Convert new_path to tuple of tuples and add it to paths_dict
-                            tuple_path = tuple(tuple(point) for point in new_path)
-                            self.paths_dict.setdefault(word, set()).add(tuple_path)
-                        if  (len(new_path) != 5 or word[:5] in self.words5) and \
-                          (len(new_path) != 10 or word[:10] in self.words10):
-                            yield new_path
-                        
-
-    def get_paths_dict(self):
-        return self.paths_dict
-
-
-
-
 def find_all_words(board: Board, words: Iterable[str]):
-    '''write a generator comprehension which does through board (4 by 4).
-     
-    '''
+    """write a generator comprehension which does through board (4 by 4)."""
+    from path_finder import PathFinder
     cell_num = sum(len(row) for row in board)
     max_word_len = max(len(word) for word in words)
     n = min(cell_num, max_word_len)
     finder = PathFinder(board, words)
-    for _ in finder.path_combinations2(n):  # Iterate over the generator to generate all paths
+    for _ in finder.path_combinations(n):  # Iterate over the generator to generate all paths
         pass
-    #print('NONOCCUPATIONAL' in finder.get_paths_dict())
-    #print(finder.get_paths_dict())
     return finder.get_paths_dict()
-    
 
 # -----------------------------------------------------------------------------------
 
@@ -164,54 +100,19 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
         path for path in word_combinations(board, n)
         if get_word(board, path) in words
     ]
-    
+
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-    ''' 
-    gett dict of all words and paths.
+    """
+    get dict of all words and paths.
     for each word, find the longest path (filter? reduce?)
     then add the path to the final list and add the word to a set
-    '''
-    max_paths_dict = dict()
+    """
     paths_dict = find_all_words(board, words)
+
     max_paths_dict = {
         word: max(paths, key=len) for word, paths in paths_dict.items()
     }
-    
-    return list(max_paths_dict.values())
-        
-    
-#old versions
-# # rough draft. HIGHLY unoptimised and slow. has yet to filter out paths with the same word.
-# def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-#     cell_num = sum(len(row) for row in board)
-#     max_word_len = max(len(word) for word in words)
-#     n = min(cell_num, max_word_len)
-#     for i in range(n, 0, -1):
-#         print(i)  # here just to keep track of how long it takes
-#         paths = find_length_n_paths(i, board, words)
-#         if paths:
-#             return list({get_word(board, path): path for path in paths}.values())
-
-# # much faster in execution. relies on a wonky assumption that there are words of len i for all the range
-# def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
-#     cell_num = sum(len(row) for row in board)
-#     max_word_len = max(len(word) for word in words)
-#     min_word_len = min(len(word) for word in words)
-#     n = min(cell_num, max_word_len)
-#     max_paths = []
-#     for i in range(min_word_len, n):
-#         paths = find_length_n_paths(i, board, words)
-#         if not paths: break
-#         max_paths = paths
-#     return list({get_word(board, path): path for path in max_paths}.values())
-
-
-#    board = [
-#         ['T', 'H', 'Y', 'H'],
-#         ['H', 'I', 'L', 'T'],
-#         ['T', 'B', 'O', 'E'],
-#         ['B', 'A', 'N', 'QU']
-#     ]              
+    return [list(path) for path in max_paths_dict.values()]
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
@@ -227,6 +128,6 @@ if __name__ == '__main__':
     # print(len(paths), paths)
     # paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
     # print(len(paths2), paths2)
-    # max_paths = [(get_word(board, path), path) for path in max_score_paths2(board, words)]
-    # print(len(max_paths), max_paths)
+    # TODO: Does not return the expected paths.
+    #  Try again
     print(max_score_paths(board, words))
