@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Tk, Frame, Label, Event
 
 from pygame import mixer
 
@@ -57,13 +57,21 @@ class Boggle:
         self.__word.reset()
 
         frame = Frame(self.__root)
-        frame.place(relx=0.5, rely=0.5, anchor=CENTER)
+        frame.place(relx=0.5, rely=0.5, anchor='center')
 
-        Label(frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10), pady=5).pack(side='top')
+        Label(
+            frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10)
+        ).pack(side='top', pady=PAD / 2)
         end and self.__score.pack_result(frame)
         Button(
             frame, text='Play' if not end else 'Restart', font=(FONT, FONTSIZE), command=self.__generate_board
         ).pack(side='top', pady=PAD)
+
+    @staticmethod
+    def frame_row_config(frame: Frame):
+        """Ensure each child in the same row of the given frame resizes at a constant rate"""
+        for i in range(len(frame.children)):
+            frame.columnconfigure(i, weight=1)
 
     def __init_score(self):
         """Displays the score and time at the top of the window"""
@@ -71,12 +79,8 @@ class Boggle:
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
         self.__score.pack(frame)
-        self.__timer.pack(frame)
-
-        # ensure the two labels resize at a constant rate.
-        for i in range(len(frame.children)):
-            frame.columnconfigure(i, weight=1)
-        self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
+        self.__timer.pack(frame, lambda: self.__init_title_screen(end=True))
+        self.frame_row_config(frame)
 
     def __init_word(self, board: Board):
         """Displays the current word at the bottom of the window"""
@@ -86,9 +90,7 @@ class Boggle:
         Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check, sfx=False).grid(
             row=0, column=2, sticky='w'
         )
-
-        for i in range(len(frame.children)):
-            frame.columnconfigure(i, weight=1)
+        self.frame_row_config(frame)
 
     # ---------------------------------------------------------------
 
@@ -96,7 +98,7 @@ class Boggle:
         """Creates a new board: clears the old one and loads a new board from randomizer"""
         self.__clear()
         frame = Frame(self.__root)
-        frame.pack(side='right', fill='y', padx=(10, 0))
+        frame.pack(side='right', fill='y', padx=(PAD, 0))
         self.__history.pack(frame)
 
         self.__init_score()
@@ -107,11 +109,11 @@ class Boggle:
         # Create a button for each letter
         for i, row in enumerate(board):
             for j, cell in enumerate(row):
-                button = Button(self.__board, text=cell, font=("Courier", 25))
+                button = Button(self.__board, text=cell, font=("Courier", FONTSIZE + 6))
                 button.bind('<Button>', self.__on_click, add='+')
                 button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
-            self.__board.grid_rowconfigure(i, weight=1, uniform='1')
+            self.__board.grid_rowconfigure(i, weight=1, uniform='button')
         self.__init_word(board)
 
     def __on_click(self, e: Event):
@@ -132,11 +134,11 @@ class Boggle:
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
 
-        if is_valid:
-            # Update the history and score
+        if is_valid:  # Update the history and score
             self.__history.add(word)
             self.__score.add(len(path) ** 2)
 
+        # Flash the buttons in the appropriate color
         for button in self.__board.winfo_children():
             button: Button
             button.point() in path and button.flash(color)

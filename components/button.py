@@ -14,7 +14,7 @@ class Button(tkinter.Button):
         sfx and self.bind("<Button>", lambda *args: play(CLICK), add="+")
 
     def point(self) -> Point:
-        """Returns the button's placement on the board (if it have any)"""
+        """Returns the button's placement on the board (if it has any)"""
         grid_info = self.grid_info()
         return (grid_info.get('row', 0), grid_info.get('column', 0))
 

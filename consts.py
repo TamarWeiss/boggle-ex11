@@ -1,6 +1,5 @@
 SIZE = 500
 TIME = 180
-REFRESH_RATE = 100
 
 FONT = 'sans serif'
 FONTSIZE = 18
