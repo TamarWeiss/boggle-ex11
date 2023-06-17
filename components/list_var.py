@@ -1,10 +1,6 @@
-from tkinter import Misc, Variable
+from tkinter import Variable
 
 class ListVar(Variable):
-    def __init__(self, master: Misc = None, value=None, name: str = None):
-        value = value or []
-        super().__init__(master, value, name)
-
     def get(self) -> list:
         return list(super().get())
 

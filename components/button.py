@@ -1,6 +1,6 @@
 import tkinter
 
-from components.music import Music
+from components.music import play
 from consts import Point, OG
 
 CLICK = 'click.mp3'
@@ -9,8 +9,7 @@ DURATION = 250
 class Button(tkinter.Button):
     def __init__(self, *args, sfx=True, **kwargs):
         super().__init__(*args, **kwargs)
-        music = Music()
-        sfx and self.bind("<Button>", lambda *args: music.play(CLICK), add="+")
+        sfx and self.bind("<Button>", lambda *args: play(CLICK), add="+")
 
     def point(self) -> Point:
         grid_info = self.grid_info()

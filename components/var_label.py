@@ -4,7 +4,7 @@ from typing import Optional
 from consts import FONT, FONTSIZE, PAD
 
 class VarLabel:
-    def __init__(self, value=None):
+    def __init__(self, value=''):
         self.root: Optional[Widget] = None
         self.var = Variable(value=value)
         self.__init_value = value

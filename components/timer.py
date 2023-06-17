@@ -1,7 +1,7 @@
 from tkinter import StringVar, Widget
 from typing import Callable
 
-from components.music import Music
+from components.music import play
 from components.var_label import VarLabel
 from consts import REFRESH_RATE
 
@@ -11,7 +11,6 @@ HURRY = 'hurry-up.mp3'
 class Timer(VarLabel):
     def __init__(self, time: float):
         super().__init__(float(time))
-        self.__music = Music()
         self.__time = StringVar(value=self.__format_time())
         self.var.trace_add('write', lambda *args: self.__time.set(self.__format_time()))
 
@@ -30,7 +29,7 @@ class Timer(VarLabel):
         """Counts down the timer. If it's done, it calls the end screen."""
         seconds = self.__substract()
         if seconds > 0:
-            seconds == NEAR_END and self.__music.play(HURRY, channel_num=1)
+            seconds == NEAR_END and play(HURRY, channel_num=1)
             self.root.after(REFRESH_RATE, self.count_down, callback)
         else:
             callback()

@@ -6,7 +6,7 @@ from consts import FONTSIZE, FONT, PAD, OG
 
 class History(VarLabel):
     def __init__(self):
-        super().__init__([])
+        super().__init__()
         self.var = ListVar()
 
     def pack(self, root: Widget):

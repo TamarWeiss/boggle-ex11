@@ -7,7 +7,7 @@ from ex11_utils import get_word
 
 class Word(VarLabel):
     def __init__(self):
-        super().__init__([])
+        super().__init__()
         self.var = ListVar()
         self.__word = StringVar()
         self.board = []

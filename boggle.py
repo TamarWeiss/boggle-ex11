@@ -3,7 +3,7 @@ from tkinter import *
 from boggle_board_randomizer import randomize_board
 from components.button import Button
 from components.history import History
-from components.music import Music
+from components.music import play
 from components.score import Score
 from components.timer import Timer
 from components.word import Word
@@ -14,7 +14,6 @@ class Boggle:
     def __init__(self, width: int, height: int):
         self.__root = Tk()
         self.__words = load_words(FILENAME)
-        self.__music = Music()
         self.__history = History()
         self.__timer = Timer(TIME)
         self.__score = Score()
@@ -131,7 +130,7 @@ class Boggle:
             button: Button
             button.point() in path and button.flash(color)
 
-        self.__music.play(sound)
+        play(sound)
         self.__word.reset()
 
 if __name__ == "__main__":
