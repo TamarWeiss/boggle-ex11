@@ -11,9 +11,10 @@ from consts import *
 from ex11_utils import is_valid_path, load_words
 
 class Boggle:
-    ''' a class which manages a boggle game
-    '''
+    """A class which manages a boggle game"""
+
     def __init__(self, width: int, height: int):
+        """Initialize the game variables, and call on the title screen"""
         self.__root = Tk()
         self.__words = load_words(FILENAME)
         self.__history = History()
@@ -52,7 +53,6 @@ class Boggle:
         self.__timer.reset()
         self.__word.reset()
 
-        #set content of button
         frame = Frame(self.__root)
         frame.place(relx=0.5, rely=0.5, anchor=CENTER)
 
@@ -63,22 +63,20 @@ class Boggle:
         ).pack(side='top', pady=PAD)
 
     def __init_score(self):
-        '''Displays the score and time at the top of the window'''
+        """Displays the score and time at the top of the window"""
         self.__score.reset()
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
-        #use the class method to create a static label with a 
-        #dynamic label beneath it
         self.__score.pack(frame)
         self.__timer.pack(frame)
-        
-        #ensure the two labels resize at a constant rate.
+
+        # ensure the two labels resize at a constant rate.
         for i in range(len(frame.children)):
             frame.columnconfigure(i, weight=1)
         self.__root.after(REFRESH_RATE, lambda: self.__timer.count_down(lambda: self.__init_title_screen(end=True)))
 
     def __init_word(self, board: Board):
-        '''Creates the widget for the current word'''
+        """Displays the current word at the bottom of the window"""
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
@@ -92,9 +90,8 @@ class Boggle:
     # ---------------------------------------------------------------
 
     def __generate_board(self):
-        '''Creates a new board: clears the old one and loads a new board from randomizer'''
+        """Creates a new board: clears the old one and loads a new board from randomizer"""
         self.__clear()
-
         frame = Frame(self.__root)
         frame.pack(side='right', fill='y', padx=(10, 0))
         self.__history.pack(frame)
@@ -104,7 +101,7 @@ class Boggle:
         self.__board.pack(fill='both', expand=True, padx=(PAD, 0))
         board = randomize_board()
 
-        #create a button for each location
+        # Create a button for each letter
         for i, row in enumerate(board):
             for j, cell in enumerate(row):
                 button = Button(self.__board, text=cell, font=("Courier", 25))
@@ -115,6 +112,8 @@ class Boggle:
         self.__init_word(board)
 
     def __on_click(self, e: Event):
+        """An onClick event which is resposible for toggling the button's state,
+        and adding or removing the select letter from the current word"""
         path = self.__word
         button: Button = e.widget
         point = button.point()
@@ -124,14 +123,14 @@ class Boggle:
         button.toggle(is_active, BLUE)
 
     def __check(self):
-        ''' check if the current word in the dictionary'''
+        """Checks if the current word in the dictionary, and gives the appropriate visual and auditorial response"""
         path = self.__word.get()
         word = is_valid_path(self.__word.board, path, self.__words)
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
 
         if is_valid:
-            #update the history and score
+            # Update the history and score
             self.__history.add(word)
             self.__score.add(len(path) ** 2)
 

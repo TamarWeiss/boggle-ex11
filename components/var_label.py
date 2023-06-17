@@ -4,12 +4,15 @@ from typing import Optional
 from consts import FONT, FONTSIZE, PAD
 
 class VarLabel:
+    """A generic component with a given visual template, which helps keep track and modifiying a given variable"""
+
     def __init__(self, value=''):
         self.root: Optional[Widget] = None
         self.var = Variable(value=value)
         self.__init_value = value
 
     def pack(self, root: Widget, text: str, col=0, var: Variable = None):
+        """The default look is of a static title label, and a dynamic variable label"""
         self.root = root
         var = var or self.var
 

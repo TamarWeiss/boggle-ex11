@@ -6,6 +6,8 @@ from consts import Board, Point
 from ex11_utils import get_word
 
 class Word(VarLabel):
+    """A component tasked with displaying the current word"""
+
     def __init__(self):
         super().__init__()
         self.var = ListVar()

@@ -9,6 +9,8 @@ NEAR_END = 30
 HURRY = 'hurry-up.mp3'
 
 class Timer(VarLabel):
+    """A component tasked with keeping track of the remaining time. Will sound off an alert sfx when time is running out"""
+
     def __init__(self, time: float):
         super().__init__(float(time))
         self.__time = StringVar(value=self.__format_time())
@@ -18,15 +20,17 @@ class Timer(VarLabel):
         super().pack(root, 'Time:', var=self.__time)
 
     def __substract(self) -> float:
+        """Subtract 0.1s each call"""
         seconds = round(self.get() - REFRESH_RATE / 1000, 2)
         return self.set(seconds)
 
     def __format_time(self) -> str:
+        """Format seconds into more suitable display format"""
         seconds = self.get()
         return f'{int(seconds / 60)}:{str(round(seconds % 60, 2)).zfill(4)}'
 
     def count_down(self, callback: Callable):
-        """Counts down the timer. If it's done, it calls the end screen."""
+        """Counts down the timer. If it's done, it'll call the end screen."""
         seconds = self.__substract()
         if seconds > 0:
             seconds == NEAR_END and play(HURRY, channel_num=1)

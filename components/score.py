@@ -4,6 +4,8 @@ from components.var_label import VarLabel
 from consts import FONT, FONTSIZE
 
 class Score(VarLabel):
+    """A component tasked with keeping track of the game's score"""
+
     def __init__(self):
         super().__init__(0)
 

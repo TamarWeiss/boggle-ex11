@@ -5,6 +5,8 @@ from components.var_label import VarLabel
 from consts import FONTSIZE, FONT, PAD, OG
 
 class History(VarLabel):
+    """A component tasked with keeping track and displaying already found words"""
+
     def __init__(self):
         super().__init__()
         self.var = ListVar()
