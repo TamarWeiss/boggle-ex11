@@ -128,6 +128,5 @@ if __name__ == '__main__':
     # print(len(paths), paths)
     # paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
     # print(len(paths2), paths2)
-    # TODO: Does not return the expected paths.
-    #  Try again
+    # TODO: Does not return the expected paths. Try again
     print(max_score_paths(board, words))
