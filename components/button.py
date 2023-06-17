@@ -14,13 +14,16 @@ class Button(tkinter.Button):
         sfx and self.bind("<Button>", lambda *args: play(CLICK), add="+")
 
     def point(self) -> Point:
+        """Returns the button's placement on the board (if it have any)"""
         grid_info = self.grid_info()
         return (grid_info.get('row', 0), grid_info.get('column', 0))
 
     def toggle(self, is_active: bool, color: str):
+        """Switched between an active color and a default color based on its active state"""
         self.configure(bg=color if not is_active else OG)
 
-    def flash(self, color=OG):
+    def flash(self, color=OG, duration=DURATION):
+        """Flashes the button in a certain color for a given duration"""
         self.configure(bg=color)
         if color != OG:
-            self.after(DURATION, self.flash)
+            self.after(duration, self.flash)

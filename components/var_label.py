@@ -25,8 +25,10 @@ class VarLabel:
         return self.var.get()
 
     def set(self, value):
+        """Updates the variable to the given value, and returns it"""
         self.var.set(value)
         return value
 
     def reset(self):
+        """Resets the variable back to its initial value"""
         self.var.set(self.__init_value)

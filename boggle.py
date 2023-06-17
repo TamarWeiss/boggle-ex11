@@ -1,5 +1,7 @@
 from tkinter import *
 
+from pygame import mixer
+
 from boggle_board_randomizer import randomize_board
 from components.button import Button
 from components.history import History
@@ -21,6 +23,7 @@ class Boggle:
         self.__timer = Timer(TIME)
         self.__score = Score()
         self.__word = Word()
+        mixer.init()
 
         self.__root.title('Boggle')
         self.__center(width, height)

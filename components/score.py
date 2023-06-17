@@ -16,5 +16,4 @@ class Score(VarLabel):
         super().pack(root, 'Score:', 1)
 
     def add(self, score: int) -> int:
-        score = self.get() + score
-        return self.set(score)
+        return self.set(self.get() + score)

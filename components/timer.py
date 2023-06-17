@@ -19,11 +19,6 @@ class Timer(VarLabel):
     def pack(self, root: Widget):
         super().pack(root, 'Time:', var=self.__time)
 
-    def __substract(self) -> float:
-        """Subtract 0.1s each call"""
-        seconds = round(self.get() - REFRESH_RATE / 1000, 2)
-        return self.set(seconds)
-
     def __format_time(self) -> str:
         """Format seconds into more suitable display format"""
         seconds = self.get()
@@ -31,7 +26,7 @@ class Timer(VarLabel):
 
     def count_down(self, callback: Callable):
         """Counts down the timer. If it's done, it'll call the end screen."""
-        seconds = self.__substract()
+        seconds = self.set(round(self.get() - REFRESH_RATE / 1000, 2))
         if seconds > 0:
             seconds == NEAR_END and play(HURRY, channel_num=1)
             self.root.after(REFRESH_RATE, self.count_down, callback)

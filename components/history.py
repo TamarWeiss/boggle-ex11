@@ -12,6 +12,7 @@ class History(VarLabel):
         self.var = ListVar()
 
     def pack(self, root: Widget):
+        """Creates a listbox to store the words in, along with an accompanying scrollbar"""
         f = font.Font(font=(FONT, FONTSIZE - 2))
         f.configure(underline=True)
         Label(root, text='History', font=f).pack(pady=PAD)
