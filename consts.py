@@ -9,7 +9,7 @@ PAD = 10
 OG = 'SystemButtonFace'
 RED = '#ff8080'
 GREEN = '#afef8f'
-BLUE = '#b5d4e3'
+BLUE = '#a6d9f2'
 
 FAIL = 'honk.mp3'
 SUCCESS = '1_up.wav'
