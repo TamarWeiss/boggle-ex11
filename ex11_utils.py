@@ -108,18 +108,18 @@ def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
     then add the path to the final list and add the word to a set
     """
     paths_dict = find_all_words(board, words)
-
+    max_len = max(len(path) for path in paths_dict.values())
     max_paths_dict = {
-        word: max(paths, key=len) for word, paths in paths_dict.items()
+        word: path for word, path in paths_dict.items() if len(path) == max_len
     }
-    return [list(path) for path in max_paths_dict.values()]
+    return list(max_paths_dict.values())
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
     words = load_words('boggle_dict.txt')
     board = [
-        ['T', 'H', 'Y', 'E'],
-        ['H', 'I', 'L', 'T'],
+        ['T', 'H', 'Y', 'T'],
+        ['H', 'I', 'L', 'E'],
         ['T', 'Q', 'U', 'O'],
         ['B', 'A', 'N', 'QU']
     ]
