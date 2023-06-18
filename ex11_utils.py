@@ -2,10 +2,7 @@ from pprint import pprint
 from typing import Generator, Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
-
-Board = list[list[str]]
-Point = tuple[int, int]
-Path = list[Point]
+from consts import Board, Path, Point, FILENAME
 
 def is_neighbor(point1: Point, point2: Point) -> bool:
     y1, x1 = point1
@@ -42,7 +39,6 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
         if point not in curr_path
     )
 
-# TODO: find a way to make this a generator in order to save memory
 def word_combinations(board: Board, n=1):
     paths = [[]]
     for i in range(n):
@@ -115,8 +111,6 @@ def max_score_paths2(board: Board, words: Iterable[str]) -> list[Path]:
         if not paths: break
         max_paths = paths
     return list({get_word(board, path): path for path in max_paths}.values())
-
-FILENAME = 'boggle_dict.txt'
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
