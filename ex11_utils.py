@@ -1,10 +1,7 @@
 from typing import Generator, Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
-
-Board = list[list[str]]
-Point = tuple[int, int]
-Path = list[Point]
+from consts import Board, Path, Point, FILENAME
 
 def is_neighbor(point1: Point, point2: Point) -> bool:
     y1, x1 = point1
@@ -42,9 +39,8 @@ def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
     )
 
 def word_combinations(board: Board, n=1):
-    paths = [[point] for point in board_coords(board)]
-
-    for iteration in range(n):
+    paths = [[]]
+    for i in range(n):
         new_paths = []
         for curr_path in paths:
             curr_word = get_word(board, curr_path)
@@ -52,12 +48,13 @@ def word_combinations(board: Board, n=1):
                 new_paths.append(curr_path)
                 continue
 
-            for point in get_neighbors(curr_path[-1]):
+            for point in get_neighbors(curr_path[-1]) if i else board_coords(board):
                 next_path = curr_path + [point]
                 next_word = get_word(board, next_path)
                 if len(next_word) > n or point in curr_path:
                     continue
                 new_paths.append(next_path)
+
             if paths == new_paths:
                 break
         paths = new_paths
@@ -112,7 +109,7 @@ def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
 
 # TEMPORARY. for debug purposes only.
 if __name__ == '__main__':
-    words = load_words('boggle_dict.txt')
+    words = load_words(FILENAME)
     board = [
         ['T', 'H', 'Y', 'H'],
         ['H', 'I', 'L', 'T'],
