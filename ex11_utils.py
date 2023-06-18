@@ -74,26 +74,21 @@ def find_all_words(board: Board, words: Iterable[str]):
 # -----------------------------------------------------------------------------------
 
 def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[str]:
-    '''
-    '''
     word = ''
     my_coords = board_coords(board)
     for i in range(len(path)):  # check if the path is consecutive
         if i != len(path) - 1 and not is_neighbor(path[i], path[i + 1]):
             return
-        
-        #ensure the location in the path exist on the board
+        # ensure the location in the path exists on the board
         if path[i] not in my_coords:
             return
         y, x = path[i]
-        
         word += board[y][x]
 
     if word in set(words):  # check if the word is valid
         return word
 
 def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> list[Path]:
-    #what happens if words a dict?
     words = set(words)
     return [
         path for path in path_combinations(board, n)
@@ -110,13 +105,12 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
     """ get dict of all words and paths."""
     paths_dict = find_all_words(board, words)
-    # FIX THIS
     max_paths_dict = {
         word: max(paths, key=len) for word, paths in paths_dict.items()
     }
     return list(max_paths_dict.values())
 
-# TEMPORARY. for debug purposes only.
+# For debug purposes only.
 if __name__ == '__main__':
     words = load_words(FILENAME)
     board = [
