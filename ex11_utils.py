@@ -63,6 +63,25 @@ def word_combinations(board: Board, n=1):
         paths = new_paths
     return paths
 
+def word_combinations2(board: Board, n=1):
+    if n < 2:
+        for point in board_coords(board):
+            yield [point]
+        return
+
+    for curr_path in word_combinations2(board, n - 1):
+        curr_word = get_word(board, curr_path)
+        if len(curr_word) == n:
+            yield curr_path
+            continue
+
+        for point in get_neighbors(curr_path[-1]):
+            next_path = curr_path + [point]
+            next_word = get_word(board, next_path)
+            if len(next_word) > n or point in curr_path:
+                continue
+            yield next_path
+
 def find_all_words(board: Board, words: Iterable[str]):
     """write a generator comprehension which does through board (4 by 4)."""
     from path_finder import PathFinder
@@ -97,7 +116,7 @@ def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> list[Path
 def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path]:
     words = set(words)
     return [
-        path for path in word_combinations(board, n)
+        path for path in word_combinations2(board, n)
         if get_word(board, path) in words
     ]
 
@@ -118,15 +137,13 @@ def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
 if __name__ == '__main__':
     words = load_words('boggle_dict.txt')
     board = [
-        ['T', 'H', 'Y', 'T'],
-        ['H', 'I', 'L', 'E'],
-        ['T', 'Q', 'U', 'O'],
+        ['T', 'H', 'Y', 'O'],
+        ['H', 'I', 'L', 'T'],
+        ['T', 'Q', 'U', 'E'],
         ['B', 'A', 'N', 'QU']
     ]
-    # pprint(board)
-    # paths = [(get_word(board, path), path) for path in find_length_n_paths(7, board, words)]
-    # print(len(paths), paths)
-    # paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
-    # print(len(paths2), paths2)
-    # TODO: Does not return the expected paths. Try again
+    paths = [(get_word(board, path), path) for path in find_length_n_paths(6, board, words)]
+    print(len(paths), paths)
+    paths2 = [(get_word(board, path), path) for path in find_length_n_words(7, board, words)]
+    print(len(paths2), paths2)
     print(max_score_paths(board, words))
