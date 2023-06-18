@@ -1,7 +1,7 @@
-from typing import Generator, Iterable, Optional
+from typing import Iterable, Optional
 
 from boggle_board_randomizer import BOARD_SIZE
-from consts import Board, Path, Point, FILENAME
+from consts import Board, Path, Point, FILENAME, PathDict
 
 def is_neighbor(point1: Point, point2: Point) -> bool:
     y1, x1 = point1
@@ -18,7 +18,7 @@ def load_words(filename) -> list[str]:
 def board_coords(board: Board) -> Path:
     return [(i, j) for i, row in enumerate(board) for j in range(len(row))]
 
-def get_neighbors(point: Point):
+def get_neighbors(point: Point) -> Path:
     in_bounds = lambda num: -1 < num < BOARD_SIZE
     y, x = point
     return [
@@ -28,18 +28,18 @@ def get_neighbors(point: Point):
         if (i, j) != point and in_bounds(i) and in_bounds(j)
     ]
 
-def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
-    if n < 2:
-        return ([point] for point in board_coords(board))
-    return (
-        curr_path + [point]
-        for curr_path in path_combinations(board, n - 1)
-        for point in get_neighbors(curr_path[-1])
-        if point not in curr_path
-    )
+# def path_combinations(board: Board, n=1) -> Generator[Path, any, any]:
+#     if n < 2:
+#         return ([point] for point in board_coords(board))
+#     return (
+#         curr_path + [point]
+#         for curr_path in path_combinations(board, n - 1)
+#         for point in get_neighbors(curr_path[-1])
+#         if point not in curr_path
+#     )
 
-def word_combinations(board: Board, n=1):
-    paths = [[]]
+def word_combinations(board: Board, n=1) -> list[Path]:
+    paths: list[Path] = [[]]
     for i in range(n):
         new_paths = []
         for curr_path in paths:
@@ -60,7 +60,7 @@ def word_combinations(board: Board, n=1):
         paths = new_paths
     return paths
 
-def find_all_words(board: Board, words: Iterable[str]):
+def find_all_words(board: Board, words: Iterable[str]) -> PathDict:
     """write a generator comprehension which does through board (4 by 4)."""
     from path_finder import PathFinder
     cell_num = sum(len(row) for row in board)
@@ -77,10 +77,8 @@ def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[st
     word = ''
     my_coords = board_coords(board)
     for i in range(len(path)):  # check if the path is consecutive
-        if i != len(path) - 1 and not is_neighbor(path[i], path[i + 1]):
-            return
         # ensure the location in the path exists on the board
-        if path[i] not in my_coords:
+        if i != len(path) - 1 and not is_neighbor(path[i], path[i + 1]) or path[i] not in my_coords:
             return
         y, x = path[i]
         word += board[y][x]
@@ -89,9 +87,11 @@ def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[st
         return word
 
 def find_length_n_paths(n: int, board: Board, words: Iterable[str]) -> list[Path]:
+    from path_finder import PathFinder
+    path_finder = PathFinder(board, words)
     words = set(words)
     return [
-        path for path in path_combinations(board, n)
+        path for path in path_finder.path_combinations(n)
         if get_word(board, path) in words
     ]
 
@@ -103,7 +103,7 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
     ]
 
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-    """ get dict of all words and paths."""
+    """Get dict of all words and paths."""
     paths_dict = find_all_words(board, words)
     max_paths_dict = {
         word: max(paths, key=len) for word, paths in paths_dict.items()
