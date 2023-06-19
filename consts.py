@@ -1,3 +1,5 @@
+#the consatnts for our boggle game
+
 SIZE = 500
 TIME = 180
 

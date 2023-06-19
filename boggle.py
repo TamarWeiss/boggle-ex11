@@ -16,7 +16,9 @@ class Boggle:
     """A class which manages a boggle game"""
 
     def __init__(self, width: int, height: int):
-        """Initialize the game variables, and call on the title screen"""
+        """Initialize the game variables, with the screen size variables
+        and call on the title screen"""
+        
         self.__root = Tk()
         self.__words = load_words(FILENAME)
         self.__history = History()
@@ -25,6 +27,7 @@ class Boggle:
         self.__word = Word()
         mixer.init()
 
+        #add a ti   tle
         self.__root.title('Boggle')
         self.__center(width, height)
         self.__init_title_screen()
@@ -35,6 +38,8 @@ class Boggle:
         x = (root.winfo_screenwidth() - width) // 2
         y = (root.winfo_screenheight() - height) // 2
 
+        
+        # Set window size and position
         root.geometry(f"{width}x{height}+{x}+{y}")
         root.minsize(width, height)
 
@@ -59,10 +64,12 @@ class Boggle:
         frame = Frame(self.__root)
         frame.place(relx=0.5, rely=0.5, anchor='center')
 
+        # Label for title or game over message
         Label(
             frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10)
         ).pack(side='top', pady=PAD / 2)
-        end and self.__score.pack_result(frame)
+        if end:
+            self.__score.pack_result(frame)
         Button(
             frame, text='Play' if not end else 'Restart', font=(FONT, FONTSIZE), command=self.__generate_board
         ).pack(side='top', pady=PAD)
@@ -79,6 +86,7 @@ class Boggle:
         frame = Frame(self.__root)
         frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
         self.__score.pack(frame)
+        
         self.__timer.pack(frame, lambda: self.__init_title_screen(end=True))
         self.frame_row_config(frame)
 
@@ -87,6 +95,8 @@ class Boggle:
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
+        
+        #create a button to submit words
         Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check, sfx=False).grid(
             row=0, column=2, sticky='w'
         )
@@ -114,6 +124,7 @@ class Boggle:
                 button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
             self.__board.grid_rowconfigure(i, weight=1, uniform='button')
+        #display the current word
         self.__init_word(board)
 
     def __on_click(self, e: Event):
@@ -124,6 +135,7 @@ class Boggle:
         point = button.point()
         is_active = point in path.get()
 
+        #toggle letter selection
         path.remove(point) if is_active else path.add(point)
         button.toggle(is_active, BLUE)
 
@@ -131,6 +143,7 @@ class Boggle:
         """Checks if the current word in the dictionary, and gives the appropriate visual and auditorial response"""
         path = self.__word.get()
         word = is_valid_path(self.__word.board, path, self.__words)
+        #ensure valid word that hasn't been submitted yet
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
 
@@ -142,7 +155,8 @@ class Boggle:
         for button in self.__board.winfo_children():
             button: Button
             button.point() in path and button.flash(color)
-
+        
+        #play the correct sound
         play(sound)
         self.__word.reset()
 

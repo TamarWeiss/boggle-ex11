@@ -3,6 +3,9 @@ from typing import Iterable, Generator
 from ex11_utils import Board, Path, board_coords, get_neighbors, get_word
 
 def check_set(words):
+    ''' create a dictiondary of subsets of words 
+    consisting of their first 5 or 10 letters
+    '''
     set5, set10 = set(), set()
     for word in words:
         if len(word) >= 10:
@@ -12,7 +15,8 @@ def check_set(words):
     return (set5, set10)
 
 class PathFinder:
-    """create a class which will include the word sets and path dict"""
+    """create a class which will include the word sets and path dict
+    and can find all paths in a given board"""
 
     def __init__(self, board: Board, words: Iterable[str]):
         # get words as a set, and subset of length 5 and 10 to filter useless paths
