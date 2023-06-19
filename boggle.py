@@ -87,7 +87,7 @@ class Boggle:
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
-        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check, sfx=False).grid(
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(
             row=0, column=2, sticky='w'
         )
         self.frame_row_config(frame)
@@ -130,6 +130,7 @@ class Boggle:
     def __check(self):
         """Checks if the current word in the dictionary, and gives the appropriate visual and auditorial response"""
         path = self.__word.get()
+        if not path: return
         word = is_valid_path(self.__word.board, path, self.__words)
         is_valid = word and word not in self.__history.get()
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)

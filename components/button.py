@@ -9,9 +9,9 @@ DURATION = 250
 class Button(tkinter.Button):
     """An extended Button class, which adds support for click sfxs, and toggling or flashing in a chosen color"""
 
-    def __init__(self, *args, sfx=True, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        sfx and self.bind("<Button>", lambda *args: play(CLICK), add="+")
+        self.bind("<Button>", lambda *args: play(CLICK), add="+")
 
     def point(self) -> Point:
         """Returns the button's placement on the board (if it has any)"""
