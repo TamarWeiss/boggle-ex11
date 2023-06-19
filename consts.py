@@ -20,3 +20,4 @@ FILENAME = 'boggle_dict.txt'
 Board = list[list[str]]
 Point = tuple[int, int]
 Path = list[Point]
+PathDict = dict[str, list[Path]]

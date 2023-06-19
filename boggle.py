@@ -95,9 +95,13 @@ class Boggle:
         frame = Frame(self.__root, pady=PAD)
         frame.pack(side='bottom', fill='x')
         self.__word.pack(frame, board)
+<<<<<<< HEAD
         
         #create a button to submit words
         Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check, sfx=False).grid(
+=======
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(
+>>>>>>> 9c333371adb8641b87b57f8a310cf3b6275524e4
             row=0, column=2, sticky='w'
         )
         self.frame_row_config(frame)
@@ -142,6 +146,7 @@ class Boggle:
     def __check(self):
         """Checks if the current word in the dictionary, and gives the appropriate visual and auditorial response"""
         path = self.__word.get()
+        if not path: return
         word = is_valid_path(self.__word.board, path, self.__words)
         #ensure valid word that hasn't been submitted yet
         is_valid = word and word not in self.__history.get()

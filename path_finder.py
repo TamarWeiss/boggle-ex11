@@ -1,18 +1,7 @@
 from typing import Iterable, Generator
 
-from ex11_utils import Board, Path, board_coords, get_neighbors, get_word
-
-def check_set(words):
-    ''' create a dictiondary of subsets of words 
-    consisting of their first 5 or 10 letters
-    '''
-    set5, set10 = set(), set()
-    for word in words:
-        if len(word) >= 10:
-            set10.add(word[:10])
-        if len(word) >= 5:
-            set5.add(word[:5])
-    return (set5, set10)
+from consts import Path, Board, PathDict
+from ex11_utils import board_coords, get_neighbors, get_word
 
 class PathFinder:
     """create a class which will include the word sets and path dict
@@ -22,9 +11,18 @@ class PathFinder:
         # get words as a set, and subset of length 5 and 10 to filter useless paths
         self.board = board
         self.words = set(words)
-        self.word_sets = check_set(self.words)
+        self.word_sets = self.check_set()
         self.words5, self.words10 = self.word_sets
-        self.paths_dict: dict[str, list[Path]] = {}
+        self.paths_dict: PathDict = {}
+
+    def check_set(self) -> tuple[set[str], set[str]]:
+        set5, set10 = set(), set()
+        for word in self.words:
+            if len(word) >= 10:
+                set10.add(word[:10])
+            if len(word) >= 5:
+                set5.add(word[:5])
+        return set5, set10
 
     def path_combinations(self, n=1) -> Generator[Path, any, any]:
         """for each step, get the current word, word checks if it is in the word set.
@@ -44,7 +42,6 @@ class PathFinder:
                         new_path = curr_path + [point]
                         word = get_word(self.board, new_path)
                         if word in self.words:
-                            # Convert new_path to tuple of tuples and add it to paths_dict
                             curr_paths = self.paths_dict.get(word, [])
                             if new_path not in new_path:
                                 curr_paths.append(new_path)
@@ -53,5 +50,5 @@ class PathFinder:
                                 and len(new_path) != 10 or word[:10] in self.words10:
                             yield new_path
 
-    def get_paths_dict(self):
+    def get_paths_dict(self) -> PathDict:
         return self.paths_dict
