@@ -129,18 +129,20 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
     ]
 
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-    """get dict of all words and paths."""
+    """ returns a list of tuples,
+    representing a the longest path possible for each 
+    word of the word list that is present on the board."""
     paths_dict = find_all_words(board, words)
     max_paths_dict = {word: max(paths, key=len) for word, paths in paths_dict.items()}
     return list(max_paths_dict.values())
 
-# TEMPORARY. for debug purposes only.
-if __name__ == '__main__':
-    words = load_words(FILENAME)
-    board = [
-        ['T', 'H', 'Y', 'H'],
-        ['H', 'I', 'L', 'T'],
-        ['T', 'B', 'O', 'E'],
-        ['B', 'A', 'N', 'QU']
-    ]
-    print(max_score_paths(board, words))
+# # For debug purposes only.
+# if __name__ == '__main__':
+#     words = load_words(FILENAME)
+#     board = [
+#         ['T', 'H', 'Y', 'H'],
+#         ['H', 'I', 'L', 'T'],
+#         ['T', 'B', 'O', 'E'],
+#         ['B', 'A', 'N', 'QU']
+#     ]
+#     print(max_score_paths(board, words))
