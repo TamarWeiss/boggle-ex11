@@ -16,9 +16,7 @@ class Boggle:
     """A class which manages a boggle game"""
 
     def __init__(self, width: int, height: int):
-        """Initialize the game variables, with the screen size variables
-        and call on the title screen"""
-
+        """Initialize the game variables, with the screen size variables and call on the title screen"""
         self.__root = Tk()
         self.__words = load_words(FILENAME)
         self.__history = History()
@@ -27,7 +25,7 @@ class Boggle:
         self.__word = Word()
         mixer.init()
 
-        # add a title
+        # configure the window's title, center the window, and call the title screen
         self.__root.title('Boggle')
         self.__center(width, height)
         self.__init_title_screen()
@@ -64,14 +62,11 @@ class Boggle:
         frame.place(relx=0.5, rely=0.5, anchor='center')
 
         # Label for title or game over message
-        Label(
-            frame, text='Boggle' if not end else 'Game Over!', font=(FONT, FONTSIZE + 10)
-        ).pack(side='top', pady=PAD / 2)
-        if end:
-            self.__score.pack_result(frame)
-        Button(
-            frame, text='Play' if not end else 'Restart', font=(FONT, FONTSIZE), command=self.__generate_board
-        ).pack(side='top', pady=PAD)
+        Label(frame, text='Game Over!' if end else 'Boggle', font=(FONT, FONTSIZE + 10)).pack(side='top', pady=PAD / 2)
+        end and self.__score.pack_result(frame)
+        Button(frame, text='Restart' if end else 'Play', font=(FONT, FONTSIZE), command=self.__generate_board).pack(
+            side='top', pady=PAD
+        )
 
     @staticmethod
     def frame_row_config(frame: Frame):
@@ -96,9 +91,7 @@ class Boggle:
         self.__word.pack(frame, board)
 
         # create a button to submit words
-        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(
-            row=0, column=2, sticky='w'
-        )
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(row=0, column=2, sticky='w')
         self.frame_row_config(frame)
 
     # ---------------------------------------------------------------
@@ -141,10 +134,11 @@ class Boggle:
     def __check(self):
         """Checks if the current word in the dictionary, and gives the appropriate visual and auditorial response"""
         path = self.__word.get()
-        if not path: return
+        if not path: return  # nothing was chosen. no reason to continue the check
+
         word = is_valid_path(self.__word.board, path, self.__words)
-        # ensure valid word that hasn't been submitted yet
-        is_valid = word and word not in self.__history.get()
+        is_valid = word and word not in self.__history.get()  # ensure valid word that hasn't been submitted yet
+        # choose the correct color and sound according to the result
         color, sound = (GREEN, SUCCESS) if is_valid else (RED, FAIL)
 
         if is_valid:  # Update the history and score

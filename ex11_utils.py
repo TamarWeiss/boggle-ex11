@@ -55,6 +55,7 @@ def word_combinations(board: Board, n=1) -> list[Path]:
         new_paths = []
         for curr_path in paths:
             curr_word = get_word(board, curr_path)
+            # if the word is already with the desired length, add it to the list and continue onwards
             if len(curr_word) == n:
                 new_paths.append(curr_path)
                 continue
@@ -65,14 +66,12 @@ def word_combinations(board: Board, n=1) -> list[Path]:
                 next_path = curr_path + [point]
                 next_word = get_word(board, next_path)
 
-                # If this new word is too long or the point is already in the current path, continue
-                if len(next_word) > n or point in curr_path:
-                    continue
+                # If this new word is too long or the point is already in the current path, continue without appending
+                if len(next_word) > n or point in curr_path: continue
                 new_paths.append(next_path)
 
-            # If no new paths were added on this iteration, break the loop
-            if paths == new_paths:
-                break
+        # If no new paths were added on this iteration, break the loop
+        if paths == new_paths: break
         paths = new_paths
     return paths
 
@@ -86,8 +85,7 @@ def find_all_words(board: Board, words: Iterable[str]) -> PathDict:
     n = min(cell_num, max_word_len)
     finder = PathFinder(board, words)
     # Iterate over the generator to generate all paths
-    for _ in finder.path_combinations(n):
-        pass
+    for _ in finder.path_combinations(n): pass
     return finder.get_paths_dict()
 
 # -----------------------------------------------------------------------------------
@@ -99,7 +97,8 @@ def is_valid_path(board: Board, path: Path, words: Iterable[str]) -> Optional[st
     my_coords = board_coords(board)
     for i in range(len(path)):  # check if the path is consecutive
         # ensure the location in the path exists on the board
-        if i != len(path) - 1 and not is_neighbor(path[i], path[i + 1]) or path[i] not in my_coords:
+        # the first condition ensures there won't be an index overflow in the second condition
+        if (i != len(path) - 1 and not is_neighbor(path[i], path[i + 1])) or path[i] not in my_coords:
             return
         y, x = path[i]
         word += board[y][x]
@@ -129,20 +128,19 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str]) -> list[Path
     ]
 
 def max_score_paths(board: Board, words: Iterable[str]) -> list[Path]:
-    """ returns a list of tuples,
-    representing a the longest path possible for each 
+    """returns a list of tuples, representing the longest path possible for each
     word of the word list that is present on the board."""
     paths_dict = find_all_words(board, words)
     max_paths_dict = {word: max(paths, key=len) for word, paths in paths_dict.items()}
     return list(max_paths_dict.values())
 
 # # For debug purposes only.
-# if __name__ == '__main__':
-#     words = load_words(FILENAME)
-#     board = [
-#         ['T', 'H', 'Y', 'H'],
-#         ['H', 'I', 'L', 'T'],
-#         ['T', 'B', 'O', 'E'],
-#         ['B', 'A', 'N', 'QU']
-#     ]
-#     print(max_score_paths(board, words))
+if __name__ == '__main__':
+    words = load_words(FILENAME)
+    board = [
+        ['T', 'H', 'Y', 'H'],
+        ['H', 'I', 'L', 'T'],
+        ['T', 'B', 'O', 'E'],
+        ['B', 'A', 'N', 'QU']
+    ]
+    print(max_score_paths(board, words))

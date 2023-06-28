@@ -1,4 +1,4 @@
-#the consatnts for our boggle game
+# the constants for our boggle game
 
 SIZE = 500
 TIME = 180
