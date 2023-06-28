@@ -1,4 +1,4 @@
-from tkinter import Widget, font, Scrollbar, Label, Listbox
+from tkinter import Widget, font, Scrollbar, Label, Listbox, RIGHT, LEFT, Y, NONE
 
 from components.list_var import ListVar
 from components.var_label import VarLabel
@@ -20,7 +20,7 @@ class History(VarLabel):
         scrollbar = Scrollbar(root)
         history = Listbox(root,
                           yscrollcommand=scrollbar.set,
-                          activestyle='none',
+                          activestyle=NONE,
                           bg=OG,
                           selectbackground=OG,
                           selectforeground='black',
@@ -30,8 +30,8 @@ class History(VarLabel):
                           width=PAD)
         scrollbar.config(command=history.yview)
 
-        history.pack(side='left', fill='y', pady=(0, PAD))
-        scrollbar.pack(side='right', fill='y', pady=(0, PAD))
+        history.pack(side=LEFT, fill=Y, pady=(0, PAD))
+        scrollbar.pack(side=RIGHT, fill=Y, pady=(0, PAD))
 
     def add(self, word: str):
         self.var.append(word)

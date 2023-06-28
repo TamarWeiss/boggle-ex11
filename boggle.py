@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, Event
+from tkinter import *
 
 from pygame import mixer
 
@@ -10,7 +10,7 @@ from components.score import Score
 from components.timer import Timer
 from components.word import Word
 from consts import *
-from ex11_utils import is_valid_path, load_words
+from ex11_utils import is_valid_path, max_score_paths, get_word, load_words
 
 class Boggle:
     """A class which manages a boggle game"""
@@ -26,7 +26,7 @@ class Boggle:
         mixer.init()
 
         # configure the window's title, center the window, and call the title screen
-        self.__root.title('Boggle')
+        self.__root.title(TITLE)
         self.__center(width, height)
         self.__init_title_screen()
 
@@ -59,13 +59,13 @@ class Boggle:
         self.__word.reset()
 
         frame = Frame(self.__root)
-        frame.place(relx=0.5, rely=0.5, anchor='center')
+        frame.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         # Label for title or game over message
-        Label(frame, text='Game Over!' if end else 'Boggle', font=(FONT, FONTSIZE + 10)).pack(side='top', pady=PAD / 2)
+        Label(frame, text='Game Over!' if end else TITLE, font=(FONT, FONTSIZE + 10)).pack(side=TOP, pady=PAD / 2)
         end and self.__score.pack_result(frame)
         Button(frame, text='Restart' if end else 'Play', font=(FONT, FONTSIZE), command=self.__generate_board).pack(
-            side='top', pady=PAD
+            side=TOP, pady=PAD
         )
 
     @staticmethod
@@ -78,7 +78,7 @@ class Boggle:
         """Displays the score and time at the top of the window"""
         self.__score.reset()
         frame = Frame(self.__root)
-        frame.pack(side='top', fill='x', padx=2 * PAD, pady=PAD)
+        frame.pack(side=TOP, fill=X, padx=2 * PAD, pady=PAD)
         self.__score.pack(frame)
 
         self.__timer.pack(frame, lambda: self.__init_title_screen(end=True))
@@ -87,11 +87,11 @@ class Boggle:
     def __init_word(self, board: Board):
         """Displays the current word at the bottom of the window"""
         frame = Frame(self.__root, pady=PAD)
-        frame.pack(side='bottom', fill='x')
+        frame.pack(side=BOTTOM, fill=X)
         self.__word.pack(frame, board)
 
         # create a button to submit words
-        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(row=0, column=2, sticky='w')
+        Button(frame, text='Set', font=(FONT, FONTSIZE - 2), command=self.__check).grid(row=0, column=2, sticky=W)
         self.frame_row_config(frame)
 
     # ---------------------------------------------------------------
@@ -100,7 +100,7 @@ class Boggle:
         """Creates a new board: clears the old one and loads a new board from randomizer"""
         self.__clear()
         frame = Frame(self.__root)
-        frame.pack(side='right', fill='y', padx=(PAD, 0))
+        frame.pack(side=RIGHT, fill=Y, padx=(PAD, 0))
         self.__history.pack(frame)
 
         self.__init_score()
@@ -113,7 +113,7 @@ class Boggle:
             for j, cell in enumerate(row):
                 button = Button(self.__board, text=cell, font=("Courier", FONTSIZE + 6))
                 button.bind('<Button>', self.__on_click, add='+')
-                button.grid(row=i, column=j, padx=1, pady=1, sticky='nesw')
+                button.grid(row=i, column=j, padx=1, pady=1, sticky=NSEW)
                 self.__board.grid_columnconfigure(j, weight=1, uniform='button')
             self.__board.grid_rowconfigure(i, weight=1, uniform='button')
         # display the current word

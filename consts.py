@@ -3,6 +3,7 @@
 SIZE = 500
 TIME = 180
 
+TITLE = 'Boggle'
 FONT = 'sans serif'
 FONTSIZE = 18
 PAD = 10

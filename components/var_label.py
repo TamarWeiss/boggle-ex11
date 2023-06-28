@@ -1,4 +1,4 @@
-from tkinter import Label, Widget, Variable
+from tkinter import Label, Widget, Variable, E, W
 from typing import Optional
 
 from consts import FONT, FONTSIZE, PAD
@@ -16,10 +16,8 @@ class VarLabel:
         self.root = root
         var = var or self.var
 
-        Label(root, text=text, font=(FONT, FONTSIZE - 2)).grid(row=0, column=2 * col, sticky='e')
-        Label(root, textvariable=var, font=(FONT, FONTSIZE - 2)).grid(
-            row=0, column=2 * col + 1, padx=PAD / 2, sticky='w'
-        )
+        Label(root, text=text, font=(FONT, FONTSIZE - 2)).grid(row=0, column=2 * col, sticky=E)
+        Label(root, textvariable=var, font=(FONT, FONTSIZE - 2)).grid(row=0, column=2 * col + 1, padx=PAD / 2, sticky=W)
 
     def get(self):
         return self.var.get()
